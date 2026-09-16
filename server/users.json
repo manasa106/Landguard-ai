@@ -1,0 +1,17 @@
+[
+  {
+    "id": "LG-1788022297076",
+    "name": "manasa",
+    "mobile": "9353216546",
+    "passwordHash": "58eca058c94e9170cc814fa8cd809b714e55f74947a534aa073c25cae00ce5b2",
+    "state": "Karnataka",
+    "district": "Doddaballapura taluk",
+    "village": "Adinarayana Hosahalli",
+    "location": {
+      "latitude": 13.281697,
+      "longitude": 77.596256
+    },
+    "alertsEnabled": true,
+    "createdAt": "2026-08-29T16:51:37.076Z"
+  }
+]
