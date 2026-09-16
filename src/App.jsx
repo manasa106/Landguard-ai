@@ -3,8 +3,8 @@ import {
   CircleMarker,
   MapContainer,
   Marker,
-  Popup,
   Polyline,
+  Popup,
   TileLayer,
   useMap,
 } from "react-leaflet";
@@ -14,13 +14,434 @@ import "./App.css";
 
 /* =========================================================
    LANDGUARD AI
-   COMPLETE SMART INDIA HACKATHON DEMO
-   ========================================================= */
+   Complete React Frontend Demo
+========================================================= */
+
+/* =========================================================
+   1. LANGUAGES
+========================================================= */
+
+const LANGUAGES = {
+  en: "English",
+  hi: "हिन्दी",
+  kn: "ಕನ್ನಡ",
+  as: "অসমীয়া",
+  bn: "বাংলা",
+  ne: "नेपाली",
+  mizo: "Mizo",
+  kok: "Kokborok",
+  mni: "Meitei",
+  kh: "Khasi",
+  nag: "Nagamese",
+};
+
+const T = {
+  en: {
+    dashboard: "Dashboard",
+    map: "India Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "Locate Me",
+    newReport: "New Report",
+    calculate: "Calculate Risk",
+    safeRoute: "Safe Route",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "Send SOS",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Rainfall",
+    soil: "Soil Moisture",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+
+  hi: {
+    dashboard: "डैशबोर्ड",
+    map: "भारत जोखिम मानचित्र",
+    weather: "लाइव मौसम",
+    analytics: "जोखिम विश्लेषण",
+    calculator: "जोखिम कैलकुलेटर",
+    reports: "खतरा रिपोर्ट",
+    rescue: "रेस्क्यू डैशबोर्ड",
+    incidents: "घटनाएँ",
+    sos: "SOS अलर्ट",
+    admin: "एडमिन डैशबोर्ड",
+    monitor: "रिपोर्ट मॉनिटर",
+    users: "उपयोगकर्ता",
+    logout: "लॉगआउट",
+    locate: "मेरा स्थान",
+    newReport: "नई रिपोर्ट",
+    calculate: "जोखिम गणना",
+    safeRoute: "सुरक्षित मार्ग",
+    online: "ऑनलाइन",
+    offline: "ऑफलाइन",
+    gps: "GPS",
+    emergency: "आपातकाल",
+    cancel: "रद्द करें",
+    sendSOS: "SOS भेजें",
+    weatherTitle: "लाइव मौसम",
+    risk: "जोखिम",
+    rainfall: "बारिश",
+    soil: "मिट्टी की नमी",
+    slope: "ढलान",
+    high: "उच्च",
+    critical: "गंभीर",
+    moderate: "मध्यम",
+    low: "कम",
+    aiAgent: "AI एजेंट",
+  },
+
+  kn: {
+    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    map: "ಭಾರತ ಅಪಾಯ ನಕ್ಷೆ",
+    weather: "ಲೈವ್ ಹವಾಮಾನ",
+    analytics: "ಅಪಾಯ ವಿಶ್ಲೇಷಣೆ",
+    calculator: "ಅಪಾಯ ಕ್ಯಾಲ್ಕುಲೇಟರ್",
+    reports: "ಅಪಾಯ ವರದಿಗಳು",
+    rescue: "ರಕ್ಷಣಾ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    incidents: "ಘಟನೆಗಳು",
+    sos: "SOS ಎಚ್ಚರಿಕೆಗಳು",
+    admin: "ಅಡ್ಮಿನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    monitor: "ವರದಿ ಮಾನಿಟರ್",
+    users: "ಬಳಕೆದಾರರು",
+    logout: "ಲಾಗ್‌ಔಟ್",
+    locate: "ನನ್ನ ಸ್ಥಳ",
+    newReport: "ಹೊಸ ವರದಿ",
+    calculate: "ಅಪಾಯ ಲೆಕ್ಕಿಸಿ",
+    safeRoute: "ಸುರಕ್ಷಿತ ಮಾರ್ಗ",
+    online: "ಆನ್‌ಲೈನ್",
+    offline: "ಆಫ್‌ಲೈನ್",
+    gps: "GPS",
+    emergency: "ತುರ್ತು ಪರಿಸ್ಥಿತಿ",
+    cancel: "ರದ್ದು",
+    sendSOS: "SOS ಕಳುಹಿಸಿ",
+    weatherTitle: "ಲೈವ್ ಹವಾಮಾನ",
+    risk: "ಅಪಾಯ",
+    rainfall: "ಮಳೆ",
+    soil: "ಮಣ್ಣಿನ ತೇವಾಂಶ",
+    slope: "ಇಳಿಜಾರು",
+    high: "ಹೆಚ್ಚು",
+    critical: "ಅತ್ಯಂತ ಹೆಚ್ಚು",
+    moderate: "ಮಧ್ಯಮ",
+    low: "ಕಡಿಮೆ",
+    aiAgent: "AI ಏಜೆಂಟ್",
+  },
+
+  as: {
+    dashboard: "ডেশ্বব'ৰ্ড",
+    map: "ভাৰত বিপদ মানচিত্ৰ",
+    weather: "লাইভ বতৰ",
+    analytics: "বিপদ বিশ্লেষণ",
+    calculator: "বিপদ কেলকুলেটৰ",
+    reports: "বিপদ প্ৰতিবেদন",
+    rescue: "উদ্ধাৰ ডেশ্বব'ৰ্ড",
+    incidents: "ঘটনা",
+    sos: "SOS সতৰ্কতা",
+    admin: "এডমিন ডেশ্বব'ৰ্ড",
+    monitor: "প্ৰতিবেদন মনিটৰ",
+    users: "ব্যৱহাৰকাৰী",
+    logout: "লগআউট",
+    locate: "মোৰ স্থান",
+    newReport: "নতুন প্ৰতিবেদন",
+    calculate: "বিপদ গণনা",
+    safeRoute: "নিৰাপদ পথ",
+    online: "অনলাইন",
+    offline: "অফলাইন",
+    gps: "GPS",
+    emergency: "জৰুৰীকালীন",
+    cancel: "বাতিল",
+    sendSOS: "SOS পঠাওক",
+    weatherTitle: "লাইভ বতৰ",
+    risk: "বিপদ",
+    rainfall: "বৰষুণ",
+    soil: "মাটিৰ আৰ্দ্ৰতা",
+    slope: "ঢাল",
+    high: "উচ্চ",
+    critical: "গুৰুতৰ",
+    moderate: "মধ্যম",
+    low: "কম",
+    aiAgent: "AI এজেন্ট",
+  },
+
+  bn: {
+    dashboard: "ড্যাশবোর্ড",
+    map: "ভারত ঝুঁকি মানচিত্র",
+    weather: "লাইভ আবহাওয়া",
+    analytics: "ঝুঁকি বিশ্লেষণ",
+    calculator: "ঝুঁকি ক্যালকুলেটর",
+    reports: "বিপদ রিপোর্ট",
+    rescue: "রেসকিউ ড্যাশবোর্ড",
+    incidents: "ঘটনা",
+    sos: "SOS সতর্কতা",
+    admin: "অ্যাডমিন ড্যাশবোর্ড",
+    monitor: "রিপোর্ট মনিটর",
+    users: "ব্যবহারকারী",
+    logout: "লগআউট",
+    locate: "আমার অবস্থান",
+    newReport: "নতুন রিপোর্ট",
+    calculate: "ঝুঁকি গণনা",
+    safeRoute: "নিরাপদ পথ",
+    online: "অনলাইন",
+    offline: "অফলাইন",
+    gps: "GPS",
+    emergency: "জরুরি",
+    cancel: "বাতিল",
+    sendSOS: "SOS পাঠান",
+    weatherTitle: "লাইভ আবহাওয়া",
+    risk: "ঝুঁকি",
+    rainfall: "বৃষ্টি",
+    soil: "মাটির আর্দ্রতা",
+    slope: "ঢাল",
+    high: "উচ্চ",
+    critical: "গুরুতর",
+    moderate: "মাঝারি",
+    low: "কম",
+    aiAgent: "AI এজেন্ট",
+  },
+
+  ne: {
+    dashboard: "ड्यासबोर्ड",
+    map: "भारत जोखिम नक्सा",
+    weather: "लाइभ मौसम",
+    analytics: "जोखिम विश्लेषण",
+    calculator: "जोखिम क्याल्कुलेटर",
+    reports: "जोखिम रिपोर्ट",
+    rescue: "रेस्क्यु ड्यासबोर्ड",
+    incidents: "घटनाहरू",
+    sos: "SOS अलर्ट",
+    admin: "एडमिन ड्यासबोर्ड",
+    monitor: "रिपोर्ट मोनिटर",
+    users: "प्रयोगकर्ताहरू",
+    logout: "लगआउट",
+    locate: "मेरो स्थान",
+    newReport: "नयाँ रिपोर्ट",
+    calculate: "जोखिम गणना",
+    safeRoute: "सुरक्षित मार्ग",
+    online: "अनलाइन",
+    offline: "अफलाइन",
+    gps: "GPS",
+    emergency: "आपतकालीन",
+    cancel: "रद्द",
+    sendSOS: "SOS पठाउनुहोस्",
+    weatherTitle: "लाइभ मौसम",
+    risk: "जोखिम",
+    rainfall: "वर्षा",
+    soil: "माटोको नमी",
+    slope: "ढलान",
+    high: "उच्च",
+    critical: "गम्भीर",
+    moderate: "मध्यम",
+    low: "कम",
+    aiAgent: "AI एजेन्ट",
+  },
+
+  mizo: {
+    dashboard: "Dashboard",
+    map: "India Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "Ka awmna",
+    newReport: "Report Thar",
+    calculate: "Risk Chhut",
+    safeRoute: "Khawvel Him",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "SOS Thawn",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Ruah",
+    soil: "Lei tui",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+
+  kok: {
+    dashboard: "Dashboard",
+    map: "Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "Locate Me",
+    newReport: "New Report",
+    calculate: "Calculate Risk",
+    safeRoute: "Safe Route",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "Send SOS",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Rainfall",
+    soil: "Soil Moisture",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+
+  mni: {
+    dashboard: "Dashboard",
+    map: "Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "My Location",
+    newReport: "New Report",
+    calculate: "Calculate Risk",
+    safeRoute: "Safe Route",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "Send SOS",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Rainfall",
+    soil: "Soil Moisture",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+
+  kh: {
+    dashboard: "Dashboard",
+    map: "Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "Locate Me",
+    newReport: "New Report",
+    calculate: "Calculate Risk",
+    safeRoute: "Safe Route",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "Send SOS",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Rainfall",
+    soil: "Soil Moisture",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+
+  nag: {
+    dashboard: "Dashboard",
+    map: "Risk Map",
+    weather: "Live Weather",
+    analytics: "Risk Analytics",
+    calculator: "Risk Calculator",
+    reports: "Hazard Reports",
+    rescue: "Rescue Dashboard",
+    incidents: "Incidents",
+    sos: "SOS Alerts",
+    admin: "Admin Dashboard",
+    monitor: "Monitor Reports",
+    users: "Users",
+    logout: "Logout",
+    locate: "Locate Me",
+    newReport: "New Report",
+    calculate: "Calculate Risk",
+    safeRoute: "Safe Route",
+    online: "ONLINE",
+    offline: "OFFLINE",
+    gps: "GPS",
+    emergency: "Emergency",
+    cancel: "Cancel",
+    sendSOS: "Send SOS",
+    weatherTitle: "Live Weather",
+    risk: "Risk",
+    rainfall: "Rainfall",
+    soil: "Soil Moisture",
+    slope: "Slope",
+    high: "High",
+    critical: "Critical",
+    moderate: "Moderate",
+    low: "Low",
+    aiAgent: "AI Agent",
+  },
+};
+
+/* =========================================================
+   2. NORTHEAST STATES
+========================================================= */
 
 const STATES = [
   {
     id: "arunachal",
     name: "Arunachal Pradesh",
+    short: "AR",
     capital: "Itanagar",
     lat: 27.0844,
     lng: 93.6053,
@@ -32,7 +453,8 @@ const STATES = [
   {
     id: "assam",
     name: "Assam",
-    capital: "Dispur",
+    short: "AS",
+    capital: "Guwahati",
     lat: 26.1445,
     lng: 91.7362,
     rainfall: 64,
@@ -43,6 +465,7 @@ const STATES = [
   {
     id: "manipur",
     name: "Manipur",
+    short: "MN",
     capital: "Imphal",
     lat: 24.817,
     lng: 93.9368,
@@ -54,6 +477,7 @@ const STATES = [
   {
     id: "meghalaya",
     name: "Meghalaya",
+    short: "ML",
     capital: "Shillong",
     lat: 25.5788,
     lng: 91.8933,
@@ -65,6 +489,7 @@ const STATES = [
   {
     id: "mizoram",
     name: "Mizoram",
+    short: "MZ",
     capital: "Aizawl",
     lat: 23.7271,
     lng: 92.7176,
@@ -76,6 +501,7 @@ const STATES = [
   {
     id: "nagaland",
     name: "Nagaland",
+    short: "NL",
     capital: "Kohima",
     lat: 25.6751,
     lng: 94.1086,
@@ -87,6 +513,7 @@ const STATES = [
   {
     id: "sikkim",
     name: "Sikkim",
+    short: "SK",
     capital: "Gangtok",
     lat: 27.3389,
     lng: 88.6065,
@@ -98,6 +525,7 @@ const STATES = [
   {
     id: "tripura",
     name: "Tripura",
+    short: "TR",
     capital: "Agartala",
     lat: 23.8315,
     lng: 91.2868,
@@ -107,6 +535,81 @@ const STATES = [
     risk: 49,
   },
 ];
+
+/* =========================================================
+   3. SAFE ZONES
+========================================================= */
+
+const SAFE_ZONES = [
+  {
+    id: "safe-1",
+    name: "Itanagar Emergency Safe Zone",
+    state: "Arunachal Pradesh",
+    lat: 27.0844,
+    lng: 93.6053,
+    type: "Emergency Shelter",
+  },
+  {
+    id: "safe-2",
+    name: "Guwahati Emergency Centre",
+    state: "Assam",
+    lat: 26.1445,
+    lng: 91.7362,
+    type: "Rescue Centre",
+  },
+  {
+    id: "safe-3",
+    name: "Shillong Emergency Shelter",
+    state: "Meghalaya",
+    lat: 25.5788,
+    lng: 91.8933,
+    type: "Emergency Shelter",
+  },
+  {
+    id: "safe-4",
+    name: "Aizawl Emergency Centre",
+    state: "Mizoram",
+    lat: 23.7271,
+    lng: 92.7176,
+    type: "Rescue Centre",
+  },
+  {
+    id: "safe-5",
+    name: "Kohima Emergency Centre",
+    state: "Nagaland",
+    lat: 25.6751,
+    lng: 94.1086,
+    type: "Emergency Shelter",
+  },
+  {
+    id: "safe-6",
+    name: "Gangtok Emergency Shelter",
+    state: "Sikkim",
+    lat: 27.3389,
+    lng: 88.6065,
+    type: "Rescue Centre",
+  },
+  {
+    id: "safe-7",
+    name: "Agartala Emergency Centre",
+    state: "Tripura",
+    lat: 23.8315,
+    lng: 91.2868,
+    type: "Emergency Shelter",
+  },
+  {
+    id: "safe-8",
+    name: "Imphal Emergency Centre",
+    state: "Manipur",
+    lat: 24.817,
+    lng: 93.9368,
+    type: "Rescue Centre",
+  },
+];
+
+/* =========================================================
+   4. DEMO USERS
+========================================================= */
 
 const USERS = [
   {
@@ -129,39 +632,43 @@ const USERS = [
   },
 ];
 
+/* =========================================================
+   5. DEMO DATA
+========================================================= */
+
 const INITIAL_INCIDENTS = [
   {
     id: "INC-1001",
-    location: "Tawang, Arunachal Pradesh",
+    location: "Tawang",
     state: "Arunachal Pradesh",
     severity: "high",
     type: "Slope instability",
     status: "responding",
     assignedTo: "Team Alpha",
-    reportedBy: "Sensor Network",
+    reportedBy: "Monitoring System",
     time: "12 min ago",
   },
   {
     id: "INC-1002",
-    location: "Aizawl, Mizoram",
+    location: "Aizawl",
     state: "Mizoram",
     severity: "critical",
     type: "Heavy rainfall",
     status: "dispatched",
     assignedTo: "Team Bravo",
-    reportedBy: "Citizen Report",
-    time: "28 min ago",
+    reportedBy: "Monitoring System",
+    time: "21 min ago",
   },
   {
     id: "INC-1003",
-    location: "Gangtok, Sikkim",
+    location: "Gangtok",
     state: "Sikkim",
     severity: "critical",
     type: "Landslide warning",
     status: "dispatched",
     assignedTo: "Unassigned",
-    reportedBy: "AI Detection",
-    time: "41 min ago",
+    reportedBy: "Monitoring System",
+    time: "34 min ago",
   },
 ];
 
@@ -170,12 +677,13 @@ const INITIAL_REPORTS = [
     id: "REP-1001",
     title: "Crack near hillside road",
     description:
-      "Large cracks observed close to the roadside slope.",
-    severity: "high",
+      "Visible cracks observed close to the hillside road.",
+    severity: "High",
     status: "reviewing",
-    createdAt: new Date().toISOString(),
-    photo: null,
+    synced: true,
+    photo: "",
     coordinates: null,
+    createdAt: new Date().toISOString(),
   },
 ];
 
@@ -185,19 +693,21 @@ const INITIAL_SOS = [
     status: "acknowledged",
     reportedBy: "Demo Citizen",
     coordinates: [25.5788, 91.8933],
-    createdAt: new Date().toISOString(),
     accuracy: 20,
+    source: "demo",
+    synced: true,
+    createdAt: new Date().toISOString(),
   },
 ];
 
 /* =========================================================
-   HELPERS
-   ========================================================= */
+   6. HELPERS
+========================================================= */
 
 function readJSON(key, fallback) {
   try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
   } catch {
     return fallback;
   }
@@ -206,83 +716,135 @@ function readJSON(key, fallback) {
 function writeJSON(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-    return true;
   } catch {
-    return false;
+    // Ignore localStorage failures
   }
 }
 
-function riskLabel(risk) {
-  if (risk >= 85) return "Critical";
-  if (risk >= 70) return "High";
-  if (risk >= 50) return "Moderate";
+function riskLabel(value) {
+  if (value >= 85) return "Critical";
+  if (value >= 70) return "High";
+  if (value >= 45) return "Moderate";
   return "Low";
 }
 
-function riskClass(risk) {
-  if (risk >= 85) return "critical";
-  if (risk >= 70) return "high";
-  if (risk >= 50) return "moderate";
+function riskClass(value) {
+  if (value >= 85) return "critical";
+  if (value >= 70) return "high";
+  if (value >= 45) return "moderate";
   return "low";
 }
 
 function severityClass(value) {
-  return value?.toLowerCase() || "medium";
+  return String(value || "moderate").toLowerCase();
 }
 
 function weatherDescription(code) {
-  const map = {
-    0: "Clear sky",
-    1: "Mainly clear",
-    2: "Partly cloudy",
-    3: "Overcast",
-    45: "Foggy",
-    48: "Rime fog",
-    51: "Light drizzle",
-    53: "Drizzle",
-    55: "Heavy drizzle",
-    61: "Light rain",
-    63: "Rain",
-    65: "Heavy rain",
-    71: "Light snow",
-    73: "Snow",
-    75: "Heavy snow",
-    80: "Rain showers",
-    81: "Rain showers",
-    82: "Heavy rain showers",
-    95: "Thunderstorm",
-    96: "Thunderstorm with hail",
-    99: "Thunderstorm with hail",
-  };
+  if (code === 0) return "Clear sky";
+  if ([1, 2, 3].includes(code)) return "Partly cloudy";
+  if ([45, 48].includes(code)) return "Fog";
+  if ([51, 53, 55, 56, 57].includes(code)) return "Drizzle";
+  if ([61, 63, 65, 66, 67].includes(code)) return "Rain";
+  if ([71, 73, 75, 77].includes(code)) return "Snow";
+  if ([80, 81, 82].includes(code)) return "Rain showers";
+  if ([95, 96, 99].includes(code)) return "Thunderstorm";
+  return "Weather conditions";
+}
 
-  return map[code] || "Unknown";
+function calculateDistanceKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+function findNearestSafeZone(location) {
+  if (!location) return null;
+
+  let nearest = null;
+
+  SAFE_ZONES.forEach((zone) => {
+    const distance = calculateDistanceKm(
+      location.latitude,
+      location.longitude,
+      zone.lat,
+      zone.lng
+    );
+
+    if (!nearest || distance < nearest.distance) {
+      nearest = {
+        ...zone,
+        distance,
+      };
+    }
+  });
+
+  return nearest;
+}
+
+function createGoogleMapsRoute(origin, destination) {
+  if (!destination) return "";
+
+  const destinationText = `${destination.lat},${destination.lng}`;
+
+  if (!origin) {
+    return (
+      "https://www.google.com/maps/dir/?api=1" +
+      `&destination=${encodeURIComponent(destinationText)}` +
+      "&travelmode=driving"
+    );
+  }
+
+  const originText = `${origin.latitude},${origin.longitude}`;
+
+  return (
+    "https://www.google.com/maps/dir/?api=1" +
+    `&origin=${encodeURIComponent(originText)}` +
+    `&destination=${encodeURIComponent(destinationText)}` +
+    "&travelmode=driving"
+  );
 }
 
 function createLiveLocationIcon() {
   return L.divIcon({
-    className: "live-location-marker",
+    className: "live-location-icon",
     html: `
-      <div class="live-location-dot">
-        <span></span>
+      <div class="gps-pulse">
+        <div class="gps-dot"></div>
       </div>
     `,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   });
 }
 
 function createRescueIcon() {
   return L.divIcon({
-    className: "rescue-map-marker",
+    className: "rescue-map-icon",
     html: `<div>🚑</div>`,
     iconSize: [34, 34],
     iconAnchor: [17, 17],
   });
 }
 
-/* =========================================================
-   IMAGE COMPRESSION
-   ========================================================= */
+function createSafeIcon() {
+  return L.divIcon({
+    className: "safe-map-icon",
+    html: `<div>🛟</div>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+  });
+}
 
 function compressImage(file, maxSize = 900, quality = 0.62) {
   return new Promise((resolve, reject) => {
@@ -312,9 +874,7 @@ function compressImage(file, maxSize = 900, quality = 0.62) {
           canvas.height
         );
 
-        resolve(
-          canvas.toDataURL("image/jpeg", quality)
-        );
+        resolve(canvas.toDataURL("image/jpeg", quality));
       };
 
       img.onerror = reject;
@@ -327,8 +887,8 @@ function compressImage(file, maxSize = 900, quality = 0.62) {
 }
 
 /* =========================================================
-   MAP CONTROLLER
-   ========================================================= */
+   7. MAP CONTROLLER
+========================================================= */
 
 function MapController({ liveLocation, locateSignal }) {
   const map = useMap();
@@ -337,13 +897,9 @@ function MapController({ liveLocation, locateSignal }) {
     if (!liveLocation || locateSignal === 0) return;
 
     map.flyTo(
-      [
-        liveLocation.latitude,
-        liveLocation.longitude,
-      ],
+      [liveLocation.latitude, liveLocation.longitude],
       14,
       {
-        animate: true,
         duration: 1.2,
       }
     );
@@ -353,104 +909,142 @@ function MapController({ liveLocation, locateSignal }) {
 }
 
 /* =========================================================
-   LOGIN
-   ========================================================= */
+   8. LANGUAGE SELECTOR
+========================================================= */
+
+function LanguageSelector({ language, setLanguage }) {
+  function changeLanguage(event) {
+    const value = event.target.value;
+
+    setLanguage(value);
+
+    try {
+      localStorage.setItem("landguard-language", value);
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <select
+      className="language-select"
+      value={language}
+      onChange={changeLanguage}
+      aria-label="Language"
+    >
+      {Object.entries(LANGUAGES).map(([key, name]) => (
+        <option value={key} key={key}>
+          {name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+/* =========================================================
+   9. LOGIN SCREEN
+========================================================= */
 
 function LoginScreen({ onLogin }) {
   const [mode, setMode] = useState("login");
-  const [role, setRole] = useState("citizen");
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState(
     "citizen@landguard.ai"
   );
+
   const [password, setPassword] = useState("123456");
+
+  const [name, setName] = useState("");
+
+  const [role, setRole] = useState("citizen");
 
   const [error, setError] = useState("");
 
-  function submit(e) {
-    e.preventDefault();
+  function submit(event) {
+    event.preventDefault();
+
     setError("");
 
     if (mode === "register") {
-      if (!name || !email || !password) {
-        setError("Please fill all fields.");
+      if (!name.trim()) {
+        setError("Please enter your name.");
         return;
       }
 
-      const user = {
-        name,
-        email,
+      const newUser = {
+        id: Date.now(),
+        name: name.trim(),
+        email: email.trim(),
         password,
         role,
       };
 
-      localStorage.setItem(
-        "landguard-user",
-        JSON.stringify(user)
-      );
+      writeJSON("landguard-user", newUser);
+      onLogin(newUser);
 
-      onLogin(user);
       return;
     }
 
     const found = USERS.find(
-      (u) =>
-        u.email === email &&
-        u.password === password &&
-        u.role === role
+      (user) =>
+        user.email.toLowerCase() === email.toLowerCase() &&
+        user.password === password
     );
 
     if (!found) {
-      setError(
-        "Invalid login. Use one of the demo accounts below."
+      const localUsers = readJSON(
+        "landguard-registered-users",
+        []
       );
+
+      const localFound = localUsers.find(
+        (user) =>
+          user.email.toLowerCase() ===
+            email.toLowerCase() &&
+          user.password === password
+      );
+
+      if (localFound) {
+        onLogin(localFound);
+        return;
+      }
+
+      setError(
+        "Invalid login. Use one of the demo credentials below."
+      );
+
       return;
     }
-
-    localStorage.setItem(
-      "landguard-user",
-      JSON.stringify(found)
-    );
 
     onLogin(found);
   }
 
   return (
-    <div className="login-screen">
-      <div className="login-glow glow-one"></div>
-      <div className="login-glow glow-two"></div>
+    <div className="login-page">
+      <div className="login-bg-orb orb-one"></div>
+      <div className="login-bg-orb orb-two"></div>
 
       <div className="login-card">
-        <div className="login-brand">
-          <div className="brand-mini">L</div>
+        <div className="brand-large">
+          <div className="brand-symbol">🌿</div>
 
           <div>
-            <strong>LandGuard AI</strong>
-            <small>EARLY WARNING SYSTEM</small>
+            <strong>LandGuard</strong>
+            <span>AI</span>
           </div>
         </div>
 
-        <div className="login-heading">
-          <span className="eyebrow">
-            🇮🇳 SMART INDIA HACKATHON
-          </span>
+        <p className="login-tagline">
+          Early warning. Faster rescue.
+        </p>
 
-          <h1>
-            Protecting communities
-            <span> before disaster strikes.</span>
-          </h1>
-
-          <p>
-            AI-powered landslide risk monitoring,
-            live location intelligence and emergency
-            response.
-          </p>
-        </div>
-
-        <div className="auth-switch">
+        <div className="auth-tabs">
           <button
-            className={mode === "login" ? "active" : ""}
+            className={
+              mode === "login"
+                ? "auth-tab active"
+                : "auth-tab"
+            }
             onClick={() => setMode("login")}
           >
             Login
@@ -458,7 +1052,9 @@ function LoginScreen({ onLogin }) {
 
           <button
             className={
-              mode === "register" ? "active" : ""
+              mode === "register"
+                ? "auth-tab active"
+                : "auth-tab"
             }
             onClick={() => setMode("register")}
           >
@@ -466,38 +1062,11 @@ function LoginScreen({ onLogin }) {
           </button>
         </div>
 
-        <div className="role-selector">
-          {["citizen", "rescue", "admin"].map(
-            (item) => (
-              <button
-                type="button"
-                key={item}
-                className={`role-option ${
-                  role === item ? "selected" : ""
-                }`}
-                onClick={() => setRole(item)}
-              >
-                <span>
-                  {item === "citizen"
-                    ? "👤"
-                    : item === "rescue"
-                    ? "🚑"
-                    : "🛡️"}
-                </span>
-
-                {item}
-              </button>
-            )
-          )}
-        </div>
-
-        <form
-          className="login-form"
-          onSubmit={submit}
-        >
+        <form onSubmit={submit}>
           {mode === "register" && (
-            <>
-              <label>Full Name</label>
+            <label className="field">
+              <span>Full name</span>
+
               <input
                 value={name}
                 onChange={(e) =>
@@ -505,38 +1074,65 @@ function LoginScreen({ onLogin }) {
                 }
                 placeholder="Enter your name"
               />
-            </>
+            </label>
           )}
 
-          <label>Email</label>
+          <label className="field">
+            <span>Email</span>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            placeholder="Enter email"
-          />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              placeholder="you@example.com"
+              required
+            />
+          </label>
 
-          <label>Password</label>
+          <label className="field">
+            <span>Password</span>
 
-          <input
-            type="password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            placeholder="Enter password"
-          />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              placeholder="Password"
+              required
+            />
+          </label>
+
+          {mode === "register" && (
+            <label className="field">
+              <span>Account type</span>
+
+              <select
+                value={role}
+                onChange={(e) =>
+                  setRole(e.target.value)
+                }
+              >
+                <option value="citizen">
+                  Citizen
+                </option>
+
+                <option value="rescue">
+                  Rescue Officer
+                </option>
+              </select>
+            </label>
+          )}
 
           {error && (
             <div className="form-error">
-              ⚠ {error}
+              ⚠️ {error}
             </div>
           )}
 
-          <button className="login-btn">
+          <button className="login-submit">
             {mode === "login"
               ? "Enter LandGuard AI →"
               : "Create Account →"}
@@ -544,22 +1140,23 @@ function LoginScreen({ onLogin }) {
         </form>
 
         <div className="demo-box">
-          <strong>Demo Login</strong>
+          <strong>Demo accounts</strong>
 
-          <span>
-            Citizen:
-            citizen@landguard.ai / 123456
-          </span>
+          <small>
+            Citizen: citizen@landguard.ai / 123456
+          </small>
 
-          <span>
-            Rescue:
-            rescue@landguard.ai / 123456
-          </span>
+          <small>
+            Rescue: rescue@landguard.ai / 123456
+          </small>
 
-          <span>
-            Admin:
-            admin@landguard.ai / 123456
-          </span>
+          <small>
+            Admin: admin@landguard.ai / 123456
+          </small>
+        </div>
+
+        <div className="login-footer">
+          AI-assisted disaster monitoring platform
         </div>
       </div>
     </div>
@@ -567,85 +1164,169 @@ function LoginScreen({ onLogin }) {
 }
 
 /* =========================================================
-   SIDEBAR
-   ========================================================= */
+   10. SIDEBAR
+========================================================= */
 
 function Sidebar({
   user,
   page,
   setPage,
   logout,
+  language,
 }) {
-  const citizen = [
-    ["dashboard", "⌂", "Dashboard"],
-    ["map", "◉", "India Risk Map"],
-    ["weather", "☁", "Live Weather"],
-    ["analytics", "◫", "Risk Analytics"],
-    ["calculator", "⌁", "Risk Calculator"],
-    ["reports", "▣", "Hazard Reports"],
-  ];
+  const text = T[language] || T.en;
 
-  const rescue = [
-    ["rescue", "🚑", "Rescue Dashboard"],
-    ["incidents", "⚠", "Incidents"],
-    ["sos", "🆘", "SOS Alerts"],
-    ["map", "◉", "India Risk Map"],
-  ];
+  let items = [];
 
-  const admin = [
-    ["admin", "⌂", "Admin Dashboard"],
-    ["monitor", "◉", "Monitor Reports"],
-    ["incidents", "⚠", "Incidents"],
-    ["users", "♙", "Users"],
-    ["map", "◉", "India Risk Map"],
-  ];
+  if (user.role === "citizen") {
+    items = [
+      {
+        id: "dashboard",
+        icon: "⌂",
+        label: text.dashboard,
+      },
+      {
+        id: "map",
+        icon: "◉",
+        label: text.map,
+      },
+      {
+        id: "weather",
+        icon: "☁",
+        label: text.weather,
+      },
+      {
+        id: "analytics",
+        icon: "◒",
+        label: text.analytics,
+      },
+      {
+        id: "calculator",
+        icon: "⌗",
+        label: text.calculator,
+      },
+      {
+        id: "reports",
+        icon: "▣",
+        label: text.reports,
+      },
+      {
+        id: "sos",
+        icon: "🆘",
+        label: text.sos,
+      },
+    ];
+  }
 
-  const nav =
-    user.role === "citizen"
-      ? citizen
-      : user.role === "rescue"
-      ? rescue
-      : admin;
+  if (user.role === "rescue") {
+    items = [
+      {
+        id: "rescue",
+        icon: "🚑",
+        label: text.rescue,
+      },
+      {
+        id: "incidents",
+        icon: "⚠",
+        label: text.incidents,
+      },
+      {
+        id: "sos",
+        icon: "🆘",
+        label: text.sos,
+      },
+      {
+        id: "map",
+        icon: "◉",
+        label: text.map,
+      },
+      {
+        id: "weather",
+        icon: "☁",
+        label: text.weather,
+      },
+    ];
+  }
+
+  if (user.role === "admin") {
+    items = [
+      {
+        id: "admin",
+        icon: "⌂",
+        label: text.admin,
+      },
+      {
+        id: "monitor",
+        icon: "▣",
+        label: text.monitor,
+      },
+      {
+        id: "incidents",
+        icon: "⚠",
+        label: text.incidents,
+      },
+      {
+        id: "users",
+        icon: "♙",
+        label: text.users,
+      },
+      {
+        id: "map",
+        icon: "◉",
+        label: text.map,
+      },
+      {
+        id: "analytics",
+        icon: "◒",
+        label: text.analytics,
+      },
+    ];
+  }
 
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-mini">L</div>
+        <div className="brand-mini">🌿</div>
 
         <div>
           <strong>LandGuard</strong>
-          <small>AI MONITORING</small>
+          <span>AI</span>
         </div>
       </div>
 
-      <div className="role-badge">
-        ● {user.role.toUpperCase()} MODE
+      <div className="role-pill">
+        <span className="role-dot"></span>
+
+        {user.role.toUpperCase()} MODE
       </div>
 
-      <nav className="side-nav">
-        {nav.map(([id, icon, label]) => (
+      <nav className="sidebar-nav">
+        {items.map((item) => (
           <button
-            key={id}
-            className={`nav-btn ${
-              page === id ? "active" : ""
-            }`}
-            onClick={() => setPage(id)}
+            key={item.id}
+            className={
+              page === item.id
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => setPage(item.id)}
           >
-            <span>{icon}</span>
-            <label>{label}</label>
+            <span className="nav-icon">
+              {item.icon}
+            </span>
+
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>
 
       <div className="sidebar-bottom">
-        <div className="sidebar-user">
-          <div className="avatar">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
+        <div className="system-mini">
+          <span className="status-dot"></span>
 
           <div>
-            <strong>{user.name}</strong>
-            <small>{user.email}</small>
+            <strong>AI Monitoring</strong>
+            <small>System active</small>
           </div>
         </div>
 
@@ -653,7 +1334,7 @@ function Sidebar({
           className="logout-btn"
           onClick={logout}
         >
-          ↪ Logout
+          ↪ {text.logout}
         </button>
       </div>
     </aside>
@@ -661,8 +1342,8 @@ function Sidebar({
 }
 
 /* =========================================================
-   TOPBAR
-   ========================================================= */
+   11. TOPBAR
+========================================================= */
 
 function Topbar({
   user,
@@ -670,42 +1351,53 @@ function Topbar({
   liveLocation,
   locationPermission,
   onSOS,
+  language,
+  setLanguage,
+  setShowAI,
 }) {
+  const text = T[language] || T.en;
+
   return (
     <header className="topbar">
-      <div className="top-status">
-        <span
-          className={`status-dot ${
-            isOnline ? "online" : "offline"
-          }`}
-        />
+      <div className="topbar-left">
+        <div className="mobile-brand">
+          🌿 <strong>LandGuard</strong>
+          <span>AI</span>
+        </div>
 
-        <span>
+        <div className="system-status">
+          <span
+            className={
+              isOnline
+                ? "status-dot"
+                : "status-dot offline"
+            }
+          ></span>
+
           {isOnline
             ? "System Online"
             : "Offline Mode"}
-        </span>
+        </div>
 
-        <span className="top-muted">
-          • AI Monitoring Active
-        </span>
+        <div className="ai-active">
+          ✦ AI Monitoring Active
+        </div>
       </div>
 
-      <div className="top-actions">
-        <div className="location-top">
-          <span
-            className={`location-pulse ${
-              locationPermission === "granted"
-                ? "active"
-                : ""
-            }`}
-          />
+      <div className="topbar-right">
+        <LanguageSelector
+          language={language}
+          setLanguage={setLanguage}
+        />
+
+        <div className="gps-status">
+          <span>📍</span>
 
           <div>
             <strong>
-              {locationPermission === "granted"
-                ? "GPS Active"
-                : "GPS Waiting"}
+              {liveLocation
+                ? text.gps + " Active"
+                : text.gps + " Waiting"}
             </strong>
 
             <small>
@@ -715,26 +1407,41 @@ function Topbar({
                   )}, ${liveLocation.longitude.toFixed(
                     4
                   )}`
-                : "Allow location"}
+                : locationPermission ===
+                  "denied"
+                ? "Permission denied"
+                : "Searching..."}
             </small>
           </div>
         </div>
 
         {user.role === "citizen" && (
           <button
-            className="sos-btn"
+            className="top-sos"
             onClick={onSOS}
           >
             🆘 SOS
           </button>
         )}
 
+        <button
+          className="ai-top-button"
+          onClick={() => setShowAI(true)}
+        >
+          ✦ AI
+        </button>
+
         <div className="profile-chip">
-          <div className="avatar small">
-            {user.name.charAt(0).toUpperCase()}
+          <div className="profile-avatar">
+            {user.name
+              ? user.name.charAt(0).toUpperCase()
+              : "U"}
           </div>
 
-          <span>{user.name}</span>
+          <div>
+            <strong>{user.name}</strong>
+            <small>{user.role}</small>
+          </div>
         </div>
       </div>
     </header>
@@ -742,26 +1449,8 @@ function Topbar({
 }
 
 /* =========================================================
-   RISK ORB
-   ========================================================= */
-
-function RiskOrb({ risk }) {
-  return (
-    <div className={`risk-orb ${riskClass(risk)}`}>
-      <div className="orb-ring"></div>
-
-      <div className="orb-content">
-        <small>AI RISK SCORE</small>
-        <strong>{risk}%</strong>
-        <span>{riskLabel(risk)} Risk</span>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
+   12. DASHBOARD
+========================================================= */
 
 function Dashboard({
   setPage,
@@ -771,11 +1460,18 @@ function Dashboard({
   liveWeather,
 }) {
   const averageRisk = Math.round(
-    STATES.reduce(
-      (sum, state) => sum + state.risk,
-      0
-    ) / STATES.length
+    STATES.reduce((sum, state) => sum + state.risk, 0) /
+      STATES.length
   );
+
+  const criticalCount = STATES.filter(
+    (state) => state.risk >= 85
+  ).length;
+
+  const highCount = STATES.filter(
+    (state) =>
+      state.risk >= 70 && state.risk < 85
+  ).length;
 
   const highest = [...STATES].sort(
     (a, b) => b.risk - a.risk
@@ -783,10 +1479,10 @@ function Dashboard({
 
   return (
     <div className="page">
-      <section className="hero-card">
-        <div className="hero-copy">
+      <section className="hero">
+        <div className="hero-content">
           <span className="eyebrow">
-            AI-POWERED LANDSLIDE MONITORING
+            ● EARLY WARNING SYSTEM
           </span>
 
           <h1>
@@ -796,10 +1492,10 @@ function Dashboard({
           </h1>
 
           <p>
-            Monitor rainfall, soil moisture, slope
-            conditions and landslide risk across
-            Northeast India in one intelligent
-            platform.
+            LandGuard AI combines environmental
+            signals, location intelligence and
+            citizen reports to monitor landslide
+            risk across Northeast India.
           </p>
 
           <div className="hero-actions">
@@ -807,207 +1503,314 @@ function Dashboard({
               className="primary-btn"
               onClick={() => setPage("map")}
             >
-              Open India Map →
+              🗺 Open India Map
             </button>
 
             <button
               className="secondary-btn"
-              onClick={() =>
-                setPage("calculator")
-              }
+              onClick={() => setPage("calculator")}
             >
-              Calculate Risk
+              ⌗ Calculate Risk
             </button>
           </div>
         </div>
 
-        <RiskOrb risk={averageRisk} />
+        <div className="risk-orb-wrap">
+          <div className="risk-orb">
+            <div className="orb-glow"></div>
+
+            <span>REGIONAL RISK</span>
+
+            <strong>{averageRisk}</strong>
+
+            <small> / 100</small>
+
+            <em>{riskLabel(averageRisk)}</em>
+          </div>
+        </div>
       </section>
 
-      <div className="section-head">
-        <div>
-          <h2>Live Situation</h2>
-          <p>
-            Real-time monitoring overview
-          </p>
-        </div>
-      </div>
+      <section className="metrics-grid">
+        <MetricCard
+          icon="⚠"
+          title="High Risk States"
+          value={highCount}
+          note="Risk 70–84"
+        />
 
-      <div className="metric-grid">
-        <div className="metric">
-          <small>HIGH / CRITICAL STATES</small>
-          <strong>
-            {
-              STATES.filter(
-                (s) => s.risk >= 70
-              ).length
-            }
-          </strong>
-          <span>Requires attention</span>
-        </div>
+        <MetricCard
+          icon="🚨"
+          title="Critical States"
+          value={criticalCount}
+          note="Risk 85+"
+        />
 
-        <div className="metric">
-          <small>HIGHEST RISK</small>
-          <strong>{highest.risk}%</strong>
-          <span>{highest.name}</span>
-        </div>
+        <MetricCard
+          icon="⛰"
+          title="Highest Risk"
+          value={`${highest.risk}%`}
+          note={highest.name}
+        />
 
-        <div className="metric">
-          <small>GPS STATUS</small>
-          <strong>
-            {liveLocation ? "ON" : "WAIT"}
-          </strong>
-          <span>
-            {liveLocation
-              ? "Live location detected"
-              : "Permission required"}
-          </span>
-        </div>
+        <MetricCard
+          icon="📍"
+          title="GPS Status"
+          value={liveLocation ? "LIVE" : "WAIT"}
+          note={
+            liveLocation
+              ? "Location detected"
+              : "Waiting for permission"
+          }
+        />
 
-        <div className="metric">
-          <small>LIVE TEMPERATURE</small>
-          <strong>
-            {liveWeather
+        <MetricCard
+          icon="🌡"
+          title="Temperature"
+          value={
+            liveWeather
               ? `${Math.round(
                   liveWeather.temperature_2m
-                )}°`
-              : "--"}
-          </strong>
-          <span>
-            {liveWeather
-              ? weatherDescription(
-                  liveWeather.weather_code
-                )
-              : "GPS required"}
+                )}°C`
+              : "--"
+          }
+          note="Live weather"
+        />
+      </section>
+
+      <div className="section-heading">
+        <div>
+          <span className="eyebrow">
+            NORTHEAST INDIA
           </span>
+
+          <h2>State Risk Monitor</h2>
         </div>
+
+        <button
+          className="text-btn"
+          onClick={() => setPage("analytics")}
+        >
+          View analytics →
+        </button>
       </div>
 
-      <div className="two-col">
-        <section className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Risk by State</h2>
-              <small>
-                Northeast India
-              </small>
-            </div>
+      <section className="state-grid">
+        {STATES.map((state) => (
+          <button
+            className={`state-card ${
+              selectedState.id === state.id
+                ? "selected"
+                : ""
+            }`}
+            key={state.id}
+            onClick={() => setSelectedState(state)}
+          >
+            <div className="state-card-top">
+              <div className="state-code">
+                {state.short}
+              </div>
 
-            <button
-              className="text-btn"
-              onClick={() => setPage("map")}
-            >
-              View map →
-            </button>
-          </div>
-
-          <div className="state-grid">
-            {STATES.map((state) => (
-              <button
-                key={state.id}
-                className={`state-card ${
-                  selectedState.id === state.id
-                    ? "selected"
-                    : ""
-                }`}
-                onClick={() =>
-                  setSelectedState(state)
-                }
+              <span
+                className={`risk-badge ${riskClass(
+                  state.risk
+                )}`}
               >
-                <div className="state-name">
-                  {state.name}
-                </div>
+                {riskLabel(state.risk)}
+              </span>
+            </div>
 
-                <span
-                  className={`pill ${riskClass(
-                    state.risk
-                  )}`}
-                >
-                  {riskLabel(state.risk)}
-                </span>
+            <strong>{state.name}</strong>
 
-                <div className="state-risk">
-                  <strong>
-                    {state.risk}%
-                  </strong>
+            <small>{state.capital}</small>
 
-                  <div className="progress">
-                    <span
-                      style={{
-                        width: `${state.risk}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
+            <div className="risk-progress">
+              <span
+                style={{
+                  width: `${state.risk}%`,
+                }}
+              ></span>
+            </div>
 
-        <section className="panel">
+            <div className="state-risk-value">
+              {state.risk}
+              <small>/100</small>
+            </div>
+          </button>
+        ))}
+      </section>
+
+      <section className="two-col dashboard-bottom">
+        <div className="panel">
           <div className="panel-head">
             <div>
-              <h2>AI Signal</h2>
-              <small>
+              <span className="eyebrow">
+                AI SIGNAL
+              </span>
+
+              <h2>
                 {selectedState.name}
-              </small>
+              </h2>
             </div>
+
+            <span
+              className={`risk-badge ${riskClass(
+                selectedState.risk
+              )}`}
+            >
+              {selectedState.risk}%
+            </span>
           </div>
 
-          <div className="signal-list">
-            <div>
-              <span>🌧 Rainfall</span>
-              <strong>
-                {selectedState.rainfall}%
-              </strong>
-            </div>
+          <div className="signal-grid">
+            <Signal
+              label="Rainfall"
+              value={selectedState.rainfall}
+              suffix="%"
+            />
 
-            <div>
-              <span>💧 Soil moisture</span>
-              <strong>
-                {selectedState.soil}%
-              </strong>
-            </div>
+            <Signal
+              label="Soil Moisture"
+              value={selectedState.soil}
+              suffix="%"
+            />
 
-            <div>
-              <span>⛰ Slope angle</span>
-              <strong>
-                {selectedState.slope}°
-              </strong>
-            </div>
-
-            <div>
-              <span>⚠ Risk probability</span>
-              <strong>
-                {selectedState.risk}%
-              </strong>
-            </div>
+            <Signal
+              label="Slope"
+              value={selectedState.slope}
+              suffix="°"
+            />
           </div>
 
           <div className="ai-insight">
-            <span>🤖 AI Insight</span>
+            <span>✦</span>
+
             <p>
-              Current environmental indicators
-              suggest{" "}
+              AI monitoring indicates{" "}
               <strong>
-                {riskLabel(
-                  selectedState.risk
-                ).toLowerCase()}
+                {riskLabel(selectedState.risk).toLowerCase()}
               </strong>{" "}
-              landslide risk in this region.
-              Continue monitoring rainfall and
-              slope conditions.
+              landslide conditions. Rainfall,
+              terrain slope and soil moisture
+              should be monitored continuously.
             </p>
           </div>
-        </section>
+        </div>
+
+        <div className="panel quick-panel">
+          <div className="panel-head">
+            <div>
+              <span className="eyebrow">
+                QUICK ACTIONS
+              </span>
+
+              <h2>Emergency tools</h2>
+            </div>
+          </div>
+
+          <QuickAction
+            icon="📍"
+            title="Locate Me"
+            description="Open live GPS location"
+            onClick={() => setPage("map")}
+          />
+
+          <QuickAction
+            icon="🌦️"
+            title="Live Weather"
+            description="Check current conditions"
+            onClick={() => setPage("weather")}
+          />
+
+          <QuickAction
+            icon="📷"
+            title="Report Hazard"
+            description="Submit photo + location"
+            onClick={() => setPage("reports")}
+          />
+
+          <QuickAction
+            icon="🛟"
+            title="Safe Route"
+            description="Find nearest demo safe zone"
+            onClick={() => setPage("sos")}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function MetricCard({
+  icon,
+  title,
+  value,
+  note,
+}) {
+  return (
+    <div className="metric-card">
+      <div className="metric-icon">{icon}</div>
+
+      <div>
+        <small>{title}</small>
+        <strong>{value}</strong>
+        <span>{note}</span>
       </div>
     </div>
   );
 }
 
+function Signal({ label, value, suffix }) {
+  return (
+    <div className="signal">
+      <div>
+        <span>{label}</span>
+
+        <strong>
+          {value}
+          <small>{suffix}</small>
+        </strong>
+      </div>
+
+      <div className="signal-bar">
+        <span
+          style={{
+            width: `${Math.min(
+              100,
+              value
+            )}%`,
+          }}
+        ></span>
+      </div>
+    </div>
+  );
+}
+
+function QuickAction({
+  icon,
+  title,
+  description,
+  onClick,
+}) {
+  return (
+    <button
+      className="quick-action"
+      onClick={onClick}
+    >
+      <span>{icon}</span>
+
+      <div>
+        <strong>{title}</strong>
+        <small>{description}</small>
+      </div>
+
+      <b>→</b>
+    </button>
+  );
+}
+
 /* =========================================================
-   INDIA RISK MAP
-   ========================================================= */
+   13. INDIA RISK MAP
+========================================================= */
 
 function IndiaRiskMap({
   liveLocation,
@@ -1015,120 +1818,102 @@ function IndiaRiskMap({
   setLocateSignal,
   setPage,
 }) {
-  const INDIA_CENTER = [22.5, 80.5];
+  const center = [22.5, 80.5];
 
-  const rescueLocations = [
-    [26.1445, 91.7362],
-    [25.5788, 91.8933],
-    [27.3389, 88.6065],
+  const rescuePoints = [
+    [27.1, 93.62, "Rescue Team Alpha"],
+    [23.72, 92.72, "Rescue Team Bravo"],
+    [27.34, 88.61, "Rescue Team Charlie"],
   ];
 
   return (
-    <div className="page">
+    <div className="page map-page">
       <div className="page-title-row">
         <div>
           <span className="eyebrow">
-            🇮🇳 NATIONAL MONITORING
+            GEOSPATIAL MONITORING
           </span>
 
-          <h1 className="page-title">
+          <div className="page-title">
             India Risk Map
-          </h1>
+          </div>
 
           <p>
-            Full India map with Northeast
-            landslide risk zones and your live
-            GPS location.
+            Live GPS, Northeast risk zones,
+            rescue teams and safe zones.
           </p>
         </div>
 
-        <button
-          className="locate-me-btn"
-          onClick={() => {
-            if (!liveLocation) {
-              alert(
-                "GPS location is not available. Please allow location permission."
-              );
-              return;
-            }
+        <div className="map-actions">
+          <button
+            className="secondary-btn"
+            onClick={() => {
+              if (liveLocation) {
+                setLocateSignal((value) =>
+                  value + 1
+                );
+              } else {
+                alert(
+                  "GPS location is not available yet."
+                );
+              }
+            }}
+          >
+            📍 Locate Me
+          </button>
 
-            setLocateSignal(
-              (value) => value + 1
-            );
-          }}
-        >
-          📍 Locate Me
-        </button>
+          <button
+            className="primary-btn"
+            onClick={() => setPage("sos")}
+          >
+            🛟 Safe Route
+          </button>
+        </div>
       </div>
 
-      <div className="map-panel">
-        <div className="map-header">
-          <div>
-            <h2>Live India Monitoring</h2>
-            <p>
-              Green = low • Yellow = moderate •
-              Orange = high • Red = critical
-            </p>
-          </div>
-
-          <div className="map-live-badge">
-            {liveLocation
-              ? "● GPS ACTIVE"
-              : "○ GPS WAITING"}
-          </div>
-        </div>
-
+      <div className="map-container-shell">
         <MapContainer
-          center={INDIA_CENTER}
+          center={center}
           zoom={5}
           minZoom={4}
           maxZoom={18}
           scrollWheelZoom={true}
-          className="big-map"
+          className="risk-map"
         >
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
           <MapController
             liveLocation={liveLocation}
             locateSignal={locateSignal}
           />
 
-          <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
           {STATES.map((state) => (
             <CircleMarker
               key={state.id}
-              center={[
-                state.lat,
-                state.lng,
-              ]}
+              center={[state.lat, state.lng]}
               radius={
                 state.risk >= 85
-                  ? 15
+                  ? 20
                   : state.risk >= 70
-                  ? 13
-                  : 10
+                  ? 17
+                  : 14
               }
               pathOptions={{
-                color:
-                  state.risk >= 85
-                    ? "#ff416c"
-                    : state.risk >= 70
-                    ? "#ff9f43"
-                    : state.risk >= 50
-                    ? "#ffd166"
-                    : "#35e88b",
+                className: "risk-circle",
                 fillColor:
                   state.risk >= 85
-                    ? "#ff416c"
+                    ? "#ff315b"
                     : state.risk >= 70
                     ? "#ff9f43"
-                    : state.risk >= 50
+                    : state.risk >= 45
                     ? "#ffd166"
-                    : "#35e88b",
-                fillOpacity: 0.75,
+                    : "#32d583",
+                color: "#ffffff",
                 weight: 2,
+                fillOpacity: 0.78,
               }}
             >
               <Popup>
@@ -1140,24 +1925,15 @@ function IndiaRiskMap({
                   </span>
 
                   <span>
-                    Risk: {state.risk}%
+                    Risk: {state.risk}/100
                   </span>
 
                   <span>
-                    Status:{" "}
-                    {riskLabel(state.risk)}
-                  </span>
-
-                  <hr />
-
-                  <span>
-                    Rainfall:{" "}
-                    {state.rainfall}%
+                    Status: {riskLabel(state.risk)}
                   </span>
 
                   <span>
-                    Soil moisture:{" "}
-                    {state.soil}%
+                    Rainfall: {state.rainfall}%
                   </span>
 
                   <span>
@@ -1168,17 +1944,51 @@ function IndiaRiskMap({
             </CircleMarker>
           ))}
 
-          {rescueLocations.map(
-            ([lat, lng], index) => (
+          {SAFE_ZONES.map((zone) => (
+            <Marker
+              key={zone.id}
+              position={[zone.lat, zone.lng]}
+              icon={createSafeIcon()}
+            >
+              <Popup>
+                <div className="map-popup">
+                  <strong>🛟 {zone.name}</strong>
+
+                  <span>{zone.type}</span>
+
+                  <span>{zone.state}</span>
+
+                  <small>
+                    DEMO SAFE ZONE — verify local
+                    emergency facilities before
+                    real-world use.
+                  </small>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {rescuePoints.map(
+            ([lat, lng, name], index) => (
               <Marker
                 key={index}
                 position={[lat, lng]}
                 icon={createRescueIcon()}
               >
                 <Popup>
-                  🚑 <strong>Rescue Unit</strong>
-                  <br />
-                  Emergency response unit available
+                  <div className="map-popup">
+                    <strong>
+                      🚑 {name}
+                    </strong>
+
+                    <span>
+                      Rescue unit available
+                    </span>
+
+                    <span>
+                      Status: Monitoring
+                    </span>
+                  </div>
                 </Popup>
               </Marker>
             )
@@ -1195,12 +2005,8 @@ function IndiaRiskMap({
               <Popup>
                 <div className="map-popup">
                   <strong>
-                    📍 You are here
+                    📍 Your Live Location
                   </strong>
-
-                  <span>
-                    Live GPS location
-                  </span>
 
                   <span>
                     Latitude:{" "}
@@ -1219,9 +2025,8 @@ function IndiaRiskMap({
                   <span>
                     Accuracy: ±
                     {Math.round(
-                      liveLocation.accuracy ||
-                        0
-                    )}{" "}
+                      liveLocation.accuracy || 0
+                    )}
                     m
                   </span>
                 </div>
@@ -1230,49 +2035,59 @@ function IndiaRiskMap({
           )}
         </MapContainer>
 
-        <div className="map-bottom">
-          <div className="map-legend">
-            <span>
-              <i className="legend-dot low"></i>
-              Low
-            </span>
+        <div className="map-overlay">
+          <div className="map-live-card">
+            <span className="status-dot"></span>
 
-            <span>
-              <i className="legend-dot moderate"></i>
-              Moderate
-            </span>
-
-            <span>
-              <i className="legend-dot high"></i>
-              High
-            </span>
-
-            <span>
-              <i className="legend-dot critical"></i>
-              Critical
-            </span>
-
-            <span>
-              <i className="legend-dot live"></i>
-              You
-            </span>
+            <div>
+              <strong>LIVE MONITORING</strong>
+              <small>
+                Northeast India • 8 states
+              </small>
+            </div>
           </div>
 
-          <button
-            className="secondary-btn"
-            onClick={() => setPage("sos")}
-          >
-            🆘 Emergency Safe Route
-          </button>
+          <div className="map-legend">
+            <strong>Risk level</strong>
+
+            <Legend color="green" label="Low" />
+            <Legend color="yellow" label="Moderate" />
+            <Legend color="orange" label="High" />
+            <Legend color="red" label="Critical" />
+            <Legend color="blue" label="Your location" />
+            <Legend color="white" label="Safe zone" />
+          </div>
         </div>
+      </div>
+
+      <div className="map-note">
+        <span>ⓘ</span>
+
+        <p>
+          Risk values shown here are demonstration
+          values for the prototype. They are not
+          official government disaster warnings.
+        </p>
       </div>
     </div>
   );
 }
 
+function Legend({ color, label }) {
+  return (
+    <div className="legend-row">
+      <span
+        className={`legend-dot ${color}`}
+      ></span>
+
+      <span>{label}</span>
+    </div>
+  );
+}
+
 /* =========================================================
-   LIVE WEATHER
-   ========================================================= */
+   14. WEATHER
+========================================================= */
 
 function WeatherPage({
   liveLocation,
@@ -1282,156 +2097,159 @@ function WeatherPage({
 }) {
   return (
     <div className="page">
-      <div className="page-title">
-        Live Weather
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            LIVE ENVIRONMENT
+          </span>
+
+          <div className="page-title">
+            Live Weather
+          </div>
+
+          <p>
+            Weather data based on your GPS
+            location.
+          </p>
+        </div>
+
+        <span className="online-badge">
+          ● OPEN-METEO
+        </span>
       </div>
 
-      <p className="page-subtitle">
-        Weather conditions detected from your
-        current GPS location.
-      </p>
-
       {!liveLocation && (
-        <div className="warning-box">
-          📍 Allow location access to load live
-          weather for your location.
+        <div className="warning-panel">
+          📍 GPS location is not available.
+          Allow location access in your browser
+          to load live weather.
         </div>
       )}
 
-      {liveWeather ? (
-        <div className="weather-live-card">
-          <div className="weather-live-head">
-            <div>
-              <span className="eyebrow">
-                YOUR LOCATION
-              </span>
+      {weatherError && (
+        <div className="warning-panel">
+          ⚠️ {weatherError}
+        </div>
+      )}
 
-              <h2>
+      {weatherLoading && (
+        <div className="loading-card">
+          <div className="spinner"></div>
+          Loading live weather...
+        </div>
+      )}
+
+      {liveWeather && (
+        <>
+          <div className="weather-main-card">
+            <div className="weather-symbol">
+              {weatherIcon(
+                liveWeather.weather_code
+              )}
+            </div>
+
+            <div className="weather-temp">
+              <span>Current temperature</span>
+
+              <strong>
+                {Math.round(
+                  liveWeather.temperature_2m
+                )}
+                °C
+              </strong>
+
+              <small>
                 {weatherDescription(
                   liveWeather.weather_code
                 )}
-              </h2>
-
-              <p>
-                {liveWeather.latitude?.toFixed(
-                  4
-                )}
-                ,{" "}
-                {liveWeather.longitude?.toFixed(
-                  4
-                )}
-              </p>
+              </small>
             </div>
 
-            <div className="weather-temperature">
-              {Math.round(
-                liveWeather.temperature_2m
-              )}
-              °
+            <div className="weather-location">
+              <span>📍 GPS LOCATION</span>
+
+              <strong>
+                {liveLocation?.latitude.toFixed(
+                  5
+                )}
+                ,{" "}
+                {liveLocation?.longitude.toFixed(
+                  5
+                )}
+              </strong>
+
+              <small>
+                Updated{" "}
+                {liveWeather.updatedAt
+                  ? new Date(
+                      liveWeather.updatedAt
+                    ).toLocaleTimeString()
+                  : "now"}
+              </small>
             </div>
           </div>
 
           <div className="weather-grid">
-            <div>
-              <span>🌡 Temperature</span>
-              <strong>
-                {liveWeather.temperature_2m}{" "}
-                {liveWeather.units
-                  ?.temperature_2m || "°C"}
-              </strong>
-            </div>
+            <WeatherMetric
+              icon="💧"
+              label="Humidity"
+              value={`${Math.round(
+                liveWeather.relative_humidity_2m
+              )}%`}
+            />
 
-            <div>
-              <span>💧 Humidity</span>
-              <strong>
-                {
-                  liveWeather.relative_humidity_2m
-                }
-                %
-              </strong>
-            </div>
+            <WeatherMetric
+              icon="🌧️"
+              label="Rain"
+              value={`${liveWeather.rain || 0} mm`}
+            />
 
-            <div>
-              <span>🌧 Rain</span>
-              <strong>
-                {liveWeather.rain || 0} mm
-              </strong>
-            </div>
+            <WeatherMetric
+              icon="💨"
+              label="Wind"
+              value={`${Math.round(
+                liveWeather.wind_speed_10m
+              )} km/h`}
+            />
 
-            <div>
-              <span>☔ Precipitation</span>
-              <strong>
-                {liveWeather.precipitation || 0}{" "}
-                mm
-              </strong>
-            </div>
-
-            <div>
-              <span>💨 Wind</span>
-              <strong>
-                {liveWeather.wind_speed_10m}{" "}
-                km/h
-              </strong>
-            </div>
-
-            <div>
-              <span>🕒 Updated</span>
-              <strong>
-                {liveWeather.fetchedAt
-                  ? new Date(
-                      liveWeather.fetchedAt
-                    ).toLocaleTimeString()
-                  : "--"}
-              </strong>
-            </div>
+            <WeatherMetric
+              icon="🌧"
+              label="Precipitation"
+              value={`${liveWeather.precipitation || 0} mm`}
+            />
           </div>
-
-          {weatherLoading && (
-            <div className="weather-loading">
-              Updating weather...
-            </div>
-          )}
-
-          {weatherError && (
-            <div className="weather-error">
-              {weatherError}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="empty-state">
-          <div>☁️</div>
-          <h3>Waiting for weather data</h3>
-          <p>
-            Enable GPS location to retrieve live
-            weather.
-          </p>
-        </div>
+        </>
       )}
 
+      <div className="section-heading">
+        <div>
+          <span className="eyebrow">
+            REGIONAL SNAPSHOT
+          </span>
+
+          <h2>Northeast conditions</h2>
+        </div>
+      </div>
+
       <div className="forecast-grid">
-        {STATES.slice(0, 6).map((state) => (
+        {STATES.map((state) => (
           <div
             className="forecast-card"
             key={state.id}
           >
-            <div className="forecast-top">
-              <div>
-                <strong>{state.name}</strong>
-                <small>{state.capital}</small>
-              </div>
-
-              <span>🌧</span>
+            <div className="forecast-icon">
+              🌦️
             </div>
 
-            <div className="forecast-temp">
-              {22 + (state.rainfall % 10)}°
+            <div>
+              <strong>{state.name}</strong>
+
+              <small>
+                Rain indicator {state.rainfall}%
+              </small>
             </div>
 
-            <p>
-              Rainfall indicator{" "}
-              {state.rainfall}%
-            </p>
+            <b>{state.risk}% risk</b>
           </div>
         ))}
       </div>
@@ -1439,121 +2257,231 @@ function WeatherPage({
   );
 }
 
-/* =========================================================
-   ANALYTICS
-   ========================================================= */
+function weatherIcon(code) {
+  if (code === 0) return "☀️";
+  if ([1, 2, 3].includes(code)) return "⛅";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ([51, 53, 55].includes(code)) return "🌦️";
+  if ([61, 63, 65, 80, 81, 82].includes(code))
+    return "🌧️";
+  if ([95, 96, 99].includes(code))
+    return "⛈️";
 
-function Analytics() {
-  const sorted = [...STATES].sort(
-    (a, b) => b.risk - a.risk
-  );
+  return "🌤️";
+}
 
+function WeatherMetric({ icon, label, value }) {
   return (
-    <div className="page">
-      <div className="page-title">
-        Risk Analytics
-      </div>
+    <div className="weather-metric">
+      <span>{icon}</span>
 
-      <p className="page-subtitle">
-        AI indicators used for landslide risk
-        assessment.
-      </p>
-
-      <div className="analytics-grid">
-        <div className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>State Risk Ranking</h2>
-              <small>
-                Higher score indicates higher
-                modeled risk.
-              </small>
-            </div>
-          </div>
-
-          <div className="ranking">
-            {sorted.map((state, index) => (
-              <div
-                className="rank-row"
-                key={state.id}
-              >
-                <div className="rank-number">
-                  {index + 1}
-                </div>
-
-                <div className="rank-name">
-                  <strong>{state.name}</strong>
-
-                  <div className="rank-bar">
-                    <span
-                      className={riskClass(
-                        state.risk
-                      )}
-                      style={{
-                        width: `${state.risk}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <strong className="rank-score">
-                  {state.risk}%
-                </strong>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Risk Components</h2>
-              <small>
-                Environmental indicators
-              </small>
-            </div>
-          </div>
-
-          <div className="analytics-components">
-            <div>
-              <span>Rainfall</span>
-              <strong>73%</strong>
-            </div>
-
-            <div>
-              <span>Soil moisture</span>
-              <strong>19%</strong>
-            </div>
-
-            <div>
-              <span>Slope instability</span>
-              <strong>76%</strong>
-            </div>
-
-            <div>
-              <span>Historical activity</span>
-              <strong>68%</strong>
-            </div>
-          </div>
-        </div>
+      <div>
+        <small>{label}</small>
+        <strong>{value}</strong>
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   RISK CALCULATOR
-   ========================================================= */
+   15. ANALYTICS
+========================================================= */
+
+function Analytics() {
+  const sorted = [...STATES].sort(
+    (a, b) => b.risk - a.risk
+  );
+
+  const avg = Math.round(
+    STATES.reduce(
+      (sum, state) => sum + state.risk,
+      0
+    ) / STATES.length
+  );
+
+  return (
+    <div className="page">
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            DATA INTELLIGENCE
+          </span>
+
+          <div className="page-title">
+            Risk Analytics
+          </div>
+
+          <p>
+            Prototype risk indicators across
+            Northeast India.
+          </p>
+        </div>
+      </div>
+
+      <div className="analytics-summary">
+        <div className="analytics-score">
+          <span>REGIONAL RISK</span>
+
+          <strong>{avg}</strong>
+
+          <small>/100</small>
+
+          <em>{riskLabel(avg)}</em>
+        </div>
+
+        <div className="analytics-components">
+          <AnalyticsBar
+            label="Rainfall influence"
+            value={73}
+          />
+
+          <AnalyticsBar
+            label="Soil moisture influence"
+            value={61}
+          />
+
+          <AnalyticsBar
+            label="Slope instability"
+            value={76}
+          />
+
+          <AnalyticsBar
+            label="Historical activity"
+            value={68}
+          />
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <span className="eyebrow">
+              STATE COMPARISON
+            </span>
+
+            <h2>Risk signals</h2>
+          </div>
+        </div>
+
+        <div className="ranking-list">
+          {sorted.map((state, index) => (
+            <div
+              className="ranking-row"
+              key={state.id}
+            >
+              <span className="ranking-number">
+                {String(index + 1).padStart(
+                  2,
+                  "0"
+                )}
+              </span>
+
+              <div className="ranking-name">
+                <strong>{state.name}</strong>
+                <small>{state.capital}</small>
+              </div>
+
+              <div className="ranking-bar">
+                <span
+                  style={{
+                    width: `${state.risk}%`,
+                  }}
+                ></span>
+              </div>
+
+              <strong className="ranking-value">
+                {state.risk}
+              </strong>
+
+              <span
+                className={`risk-badge ${riskClass(
+                  state.risk
+                )}`}
+              >
+                {riskLabel(state.risk)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="info-grid">
+        <InfoCard
+          icon="🌧️"
+          title="Rainfall"
+          text="Heavy and persistent rainfall can increase soil saturation and slope instability."
+        />
+
+        <InfoCard
+          icon="🪨"
+          title="Terrain"
+          text="Steeper terrain generally requires closer landslide monitoring."
+        />
+
+        <InfoCard
+          icon="💧"
+          title="Soil Moisture"
+          text="Higher soil moisture can be an important environmental signal."
+        />
+
+        <InfoCard
+          icon="📚"
+          title="Historical Data"
+          text="Historical landslide records can support risk-model development."
+        />
+      </div>
+
+      <div className="map-note">
+        ⓘ Prototype analytics are for demonstration
+        and should not be interpreted as official
+        warnings.
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsBar({ label, value }) {
+  return (
+    <div className="analytics-bar">
+      <div>
+        <span>{label}</span>
+        <strong>{value}%</strong>
+      </div>
+
+      <div className="analytics-track">
+        <span
+          style={{
+            width: `${value}%`,
+          }}
+        ></span>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ icon, title, text }) {
+  return (
+    <div className="info-card">
+      <span>{icon}</span>
+
+      <div>
+        <strong>{title}</strong>
+        <p>{text}</p>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   16. RISK CALCULATOR
+========================================================= */
 
 function RiskCalculator() {
-  const [rainfall, setRainfall] =
-    useState(60);
-
+  const [rainfall, setRainfall] = useState(60);
   const [soil, setSoil] = useState(20);
-
   const [slope, setSlope] = useState(70);
 
-  const risk = Math.min(
+  const result = Math.min(
     99,
     Math.round(
       rainfall * 0.35 +
@@ -1564,102 +2492,131 @@ function RiskCalculator() {
 
   return (
     <div className="page">
-      <div className="page-title">
-        AI Risk Calculator
-      </div>
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            AI SIMULATION
+          </span>
 
-      <p className="page-subtitle">
-        Adjust environmental parameters to
-        simulate a risk score.
-      </p>
-
-      <div className="calculator-grid">
-        <div className="panel controls-panel">
-          <div className="range-control">
-            <label>
-              <span>🌧 Rainfall</span>
-              <strong>{rainfall}%</strong>
-            </label>
-
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={rainfall}
-              onChange={(e) =>
-                setRainfall(
-                  Number(e.target.value)
-                )
-              }
-            />
+          <div className="page-title">
+            Risk Calculator
           </div>
-
-          <div className="range-control">
-            <label>
-              <span>💧 Soil moisture</span>
-              <strong>{soil}%</strong>
-            </label>
-
-            <input
-              type="range"
-              min="0"
-              max="50"
-              value={soil}
-              onChange={(e) =>
-                setSoil(
-                  Number(e.target.value)
-                )
-              }
-            />
-          </div>
-
-          <div className="range-control">
-            <label>
-              <span>⛰ Slope angle</span>
-              <strong>{slope}°</strong>
-            </label>
-
-            <input
-              type="range"
-              min="0"
-              max="90"
-              value={slope}
-              onChange={(e) =>
-                setSlope(
-                  Number(e.target.value)
-                )
-              }
-            />
-          </div>
-        </div>
-
-        <div className="scenario-result">
-          <small>SIMULATED RISK</small>
-
-          <div
-            className={`calculator-score ${riskClass(
-              risk
-            )}`}
-          >
-            {risk}%
-          </div>
-
-          <h2>{riskLabel(risk)} Risk</h2>
 
           <p>
-            This is a demonstration calculation
-            for the prototype and is not an
-            official disaster warning.
+            Adjust environmental indicators to
+            simulate a prototype risk score.
           </p>
         </div>
+      </div>
+
+      <div className="calculator-layout">
+        <div className="panel calculator-panel">
+          <CalculatorSlider
+            label="Rainfall"
+            value={rainfall}
+            setValue={setRainfall}
+            min={0}
+            max={100}
+            unit="%"
+          />
+
+          <CalculatorSlider
+            label="Soil Moisture"
+            value={soil}
+            setValue={setSoil}
+            min={0}
+            max={50}
+            unit="%"
+          />
+
+          <CalculatorSlider
+            label="Slope Angle"
+            value={slope}
+            setValue={setSlope}
+            min={0}
+            max={90}
+            unit="°"
+          />
+
+          <div className="formula-box">
+            <strong>Prototype model</strong>
+
+            <code>
+              Risk = Rainfall × 0.35 + Soil ×
+              1.1 + Slope × 0.45
+            </code>
+          </div>
+        </div>
+
+        <div
+          className={`calculator-result ${riskClass(
+            result
+          )}`}
+        >
+          <span>SIMULATED RISK</span>
+
+          <strong>{result}</strong>
+
+          <small>/ 100</small>
+
+          <em>{riskLabel(result)}</em>
+
+          <div className="result-circle">
+            <div
+              style={{
+                "--score": `${result}%`,
+              }}
+            >
+              {result}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="map-note">
+        ⚠️ This is a demonstration calculation.
+        It is not an official disaster prediction
+        or evacuation recommendation.
       </div>
     </div>
   );
 }
 
+function CalculatorSlider({
+  label,
+  value,
+  setValue,
+  min,
+  max,
+  unit,
+}) {
+  return (
+    <div className="calculator-slider">
+      <div className="slider-heading">
+        <span>{label}</span>
+
+        <strong>
+          {value}
+          {unit}
+        </strong>
+      </div>
+
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) =>
+          setValue(Number(e.target.value))
+        }
+      />
+    </div>
+  );
+}
+
 /* =========================================================
-   REPORT MODAL
-   ========================================================= */
+   17. REPORT MODAL
+========================================================= */
 
 function ReportModal({
   onClose,
@@ -1669,138 +2626,130 @@ function ReportModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] =
     useState("");
-
   const [severity, setSeverity] =
-    useState("medium");
+    useState("Moderate");
+  const [photo, setPhoto] = useState("");
+  const [photoLoading, setPhotoLoading] =
+    useState(false);
 
-  const [photo, setPhoto] = useState(null);
-  const [preview, setPreview] =
-    useState("");
-
-  const [saving, setSaving] = useState(false);
-
-  async function handlePhoto(e) {
-    const file = e.target.files?.[0];
+  async function handlePhoto(event) {
+    const file = event.target.files?.[0];
 
     if (!file) return;
 
     try {
-      const compressed =
-        await compressImage(file);
+      setPhotoLoading(true);
 
-      setPhoto(file);
-      setPreview(compressed);
+      const compressed = await compressImage(
+        file
+      );
+
+      setPhoto(compressed);
     } catch {
-      alert("Unable to process image.");
+      alert("Could not process image.");
+    } finally {
+      setPhotoLoading(false);
     }
   }
 
-  async function submit(e) {
-    e.preventDefault();
+  function submit(event) {
+    event.preventDefault();
 
-    if (!title || !description) {
-      alert(
-        "Please enter title and description."
-      );
+    if (!title.trim()) {
+      alert("Please enter a report title.");
       return;
     }
 
-    setSaving(true);
-
-    await onSubmit({
-      title,
-      description,
+    onSubmit({
+      title: title.trim(),
+      description:
+        description.trim() ||
+        "No description provided.",
       severity,
-      photo: preview || null,
-      coordinates: liveLocation
-        ? [
-            liveLocation.latitude,
-            liveLocation.longitude,
-          ]
-        : null,
+      photo,
     });
-
-    setSaving(false);
   }
 
   return (
     <div className="modal-backdrop">
-      <div className="modal-card report-modal">
-        <button
-          className="modal-close"
-          onClick={onClose}
-        >
-          ×
-        </button>
+      <div className="modal-card">
+        <div className="modal-head">
+          <div>
+            <span className="eyebrow">
+              CITIZEN REPORT
+            </span>
 
-        <span className="eyebrow">
-          HAZARD REPORT
-        </span>
+            <h2>Report a hazard</h2>
 
-        <h2>Report a hazard</h2>
+            <p>
+              Add a photo and your current GPS
+              location.
+            </p>
+          </div>
 
-        <p>
-          Help the rescue team understand what is
-          happening around you.
-        </p>
-
-        <form
-          className="report-form"
-          onSubmit={submit}
-        >
-          <label>Report title</label>
-
-          <input
-            value={title}
-            onChange={(e) =>
-              setTitle(e.target.value)
-            }
-            placeholder="Example: Roadside slope crack"
-          />
-
-          <label>Description</label>
-
-          <textarea
-            value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-            placeholder="Describe the hazard..."
-            rows="4"
-          />
-
-          <label>Severity</label>
-
-          <select
-            value={severity}
-            onChange={(e) =>
-              setSeverity(e.target.value)
-            }
+          <button
+            className="modal-close"
+            onClick={onClose}
           >
-            <option value="low">Low</option>
-            <option value="medium">
-              Medium
-            </option>
-            <option value="high">High</option>
-            <option value="critical">
-              Critical
-            </option>
-          </select>
+            ×
+          </button>
+        </div>
 
-          <label>Photo / Camera</label>
+        <form onSubmit={submit}>
+          <label className="field">
+            <span>Hazard title</span>
 
-          <label className="camera-upload">
+            <input
+              value={title}
+              onChange={(e) =>
+                setTitle(e.target.value)
+              }
+              placeholder="Example: Crack near hillside road"
+            />
+          </label>
+
+          <label className="field">
+            <span>Description</span>
+
+            <textarea
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              placeholder="Describe what you observed..."
+              rows="4"
+            />
+          </label>
+
+          <label className="field">
+            <span>Severity</span>
+
+            <select
+              value={severity}
+              onChange={(e) =>
+                setSeverity(e.target.value)
+              }
+            >
+              <option>Low</option>
+              <option>Moderate</option>
+              <option>High</option>
+              <option>Critical</option>
+            </select>
+          </label>
+
+          <label className="photo-upload">
             <span>📷</span>
 
-            <strong>
-              {photo
-                ? "Photo selected"
-                : "Take / upload photo"}
-            </strong>
+            <div>
+              <strong>
+                Capture / upload photo
+              </strong>
 
-            <small>
-              On mobile, camera can open directly.
-            </small>
+              <small>
+                Use your phone camera or choose an
+                image.
+              </small>
+            </div>
 
             <input
               type="file"
@@ -1810,31 +2759,46 @@ function ReportModal({
             />
           </label>
 
-          {preview && (
-            <div className="photo-preview">
-              <img
-                src={preview}
-                alt="Hazard preview"
-              />
+          {photoLoading && (
+            <div className="upload-status">
+              Processing image...
             </div>
           )}
 
-          <div className="location-capture">
+          {photo && (
+            <div className="photo-preview">
+              <img
+                src={photo}
+                alt="Hazard preview"
+              />
+
+              <button
+                type="button"
+                onClick={() => setPhoto("")}
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          <div className="location-attached">
             <span>📍</span>
 
             <div>
               <strong>
-                Location attached
+                {liveLocation
+                  ? "GPS location attached"
+                  : "GPS unavailable"}
               </strong>
 
               <small>
                 {liveLocation
                   ? `${liveLocation.latitude.toFixed(
-                      5
+                      6
                     )}, ${liveLocation.longitude.toFixed(
-                      5
+                      6
                     )}`
-                  : "GPS unavailable"}
+                  : "Report can still be saved locally."}
               </small>
             </div>
           </div>
@@ -1849,12 +2813,10 @@ function ReportModal({
             </button>
 
             <button
+              type="submit"
               className="primary-btn"
-              disabled={saving}
             >
-              {saving
-                ? "Saving..."
-                : "Submit Report →"}
+              Submit Report →
             </button>
           </div>
         </form>
@@ -1864,25 +2826,28 @@ function ReportModal({
 }
 
 /* =========================================================
-   REPORTS PAGE
-   ========================================================= */
+   18. REPORTS
+========================================================= */
 
 function Reports({
   reports,
   setShowReport,
-  isOnline,
 }) {
   return (
     <div className="page">
       <div className="page-title-row">
         <div>
+          <span className="eyebrow">
+            CITIZEN SAFETY NETWORK
+          </span>
+
           <div className="page-title">
             Hazard Reports
           </div>
 
           <p>
-            Submit photos and location-based
-            hazard information.
+            Citizen-submitted landslide and hazard
+            reports.
           </p>
         </div>
 
@@ -1890,77 +2855,158 @@ function Reports({
           className="primary-btn"
           onClick={() => setShowReport(true)}
         >
-          📷 New Report
+          + New Report
         </button>
       </div>
 
-      {!isOnline && (
-        <div className="offline-banner">
-          📴 Offline mode — reports will be saved
-          locally.
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>My Hazard Reports</h2>
+
+            <small>
+              Photos, descriptions and GPS
+              coordinates
+            </small>
+          </div>
+
+          <span className="online-badge">
+            ● REPORTING ACTIVE
+          </span>
         </div>
-      )}
 
-      <div className="report-list">
-        {reports.map((report) => (
-          <div
-            className="report-row"
-            key={report.id}
-          >
-            <div className="report-photo">
-              {report.photo ? (
-                <img
-                  src={report.photo}
-                  alt="Hazard"
-                />
-              ) : (
-                <span>📷</span>
-              )}
-            </div>
-
-            <div className="report-content">
-              <div className="report-title-line">
-                <h3>{report.title}</h3>
-
-                <span
-                  className={`pill ${severityClass(
-                    report.severity
-                  )}`}
-                >
-                  {report.severity}
-                </span>
+        <div className="reports-list">
+          {reports.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                📷
               </div>
 
+              <h3>No reports yet</h3>
+
               <p>
-                {report.description}
+                Report cracks, landslides, falling
+                rocks or other hazards.
               </p>
 
-              <small>
-                {report.coordinates
-                  ? `📍 ${report.coordinates[0].toFixed(
-                      4
-                    )}, ${report.coordinates[1].toFixed(
-                      4
-                    )}`
-                  : "📍 Location not attached"}
-
-                {" • "}
-
-                {report.synced
-                  ? "✓ Synced"
-                  : "◌ Pending sync"}
-              </small>
+              <button
+                className="primary-btn"
+                onClick={() =>
+                  setShowReport(true)
+                }
+              >
+                Create First Report
+              </button>
             </div>
-          </div>
-        ))}
+          ) : (
+            reports.map((report) => (
+              <div
+                className="report-card"
+                key={report.id}
+              >
+                <div className="report-image">
+                  {report.photo ? (
+                    <img
+                      src={report.photo}
+                      alt={
+                        report.title ||
+                        "Hazard report"
+                      }
+                    />
+                  ) : (
+                    <div className="report-image-placeholder">
+                      📷
+                    </div>
+                  )}
+                </div>
+
+                <div className="report-content">
+                  <div className="report-top">
+                    <div>
+                      <strong>
+                        {report.title ||
+                          "Untitled Hazard"}
+                      </strong>
+
+                      <small className="report-id">
+                        {report.id}
+                      </small>
+                    </div>
+
+                    <span
+                      className={`severity-badge ${severityClass(
+                        report.severity
+                      )}`}
+                    >
+                      {report.severity ||
+                        "Moderate"}
+                    </span>
+                  </div>
+
+                  <p>
+                    {report.description ||
+                      "No description provided."}
+                  </p>
+
+                  <small>
+                    {report.coordinates ? (
+                      <>
+                        📍{" "}
+                        {Number(
+                          report.coordinates[0]
+                        ).toFixed(4)}
+                        ,{" "}
+                        {Number(
+                          report.coordinates[1]
+                        ).toFixed(4)}
+                      </>
+                    ) : (
+                      "📍 Location not attached"
+                    )}
+
+                    {" • "}
+
+                    {report.synced ? (
+                      <span className="synced-text">
+                        ✓ Synced
+                      </span>
+                    ) : (
+                      <span className="pending-text">
+                        ◌ Pending sync
+                      </span>
+                    )}
+                  </small>
+
+                  <div className="report-footer">
+                    <span>
+                      Status:{" "}
+                      <strong>
+                        {report.status ||
+                          "submitted"}
+                      </strong>
+                    </span>
+
+                    {report.createdAt && (
+                      <span>
+                        {new Date(
+                          report.createdAt
+                        ).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   SOS MODAL
-   ========================================================= */
+   19. SOS MODAL
+========================================================= */
 
 function SOSModal({
   onClose,
@@ -2009,6 +3055,7 @@ function SOSModal({
             <div className="coordinates">
               <div>
                 <small>Latitude</small>
+
                 <strong>
                   {liveLocation.latitude.toFixed(
                     6
@@ -2018,6 +3065,7 @@ function SOSModal({
 
               <div>
                 <small>Longitude</small>
+
                 <strong>
                   {liveLocation.longitude.toFixed(
                     6
@@ -2027,6 +3075,7 @@ function SOSModal({
 
               <div>
                 <small>Accuracy</small>
+
                 <strong>
                   ±
                   {Math.round(
@@ -2062,9 +3111,7 @@ function SOSModal({
 
               <small>
                 Humidity{" "}
-                {
-                  liveWeather.relative_humidity_2m
-                }
+                {liveWeather.relative_humidity_2m}
                 % • Rain{" "}
                 {liveWeather.rain || 0} mm
               </small>
@@ -2074,10 +3121,10 @@ function SOSModal({
 
         {!isOnline && (
           <div className="sos-offline">
-            📴 <strong>Offline SOS:</strong> The
-            alert will be stored on this device
-            and marked for synchronization when
-            the internet connection returns.
+            📴 <strong>Offline SOS:</strong>{" "}
+            The alert will be stored on this
+            device and marked for synchronization
+            when the internet connection returns.
           </div>
         )}
 
@@ -2117,8 +3164,8 @@ function SOSModal({
 }
 
 /* =========================================================
-   SOS PAGE
-   ========================================================= */
+   20. SOS PAGE + SAFE ROUTE
+========================================================= */
 
 function SOSPage({
   sosAlerts,
@@ -2132,10 +3179,43 @@ function SOSPage({
       s.status === "queued-offline"
   );
 
+  const nearestZone =
+    findNearestSafeZone(liveLocation);
+
+  const routeCoordinates =
+    liveLocation && nearestZone
+      ? [
+          [
+            liveLocation.latitude,
+            liveLocation.longitude,
+          ],
+          [nearestZone.lat, nearestZone.lng],
+        ]
+      : [];
+
+  function openNavigation() {
+    const url = createGoogleMapsRoute(
+      liveLocation,
+      nearestZone
+    );
+
+    if (url) {
+      window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
+  }
+
   return (
     <div className="page">
       <div className="page-title-row">
         <div>
+          <span className="eyebrow danger-text">
+            EMERGENCY CENTER
+          </span>
+
           <div className="page-title">
             SOS Emergency Center
           </div>
@@ -2162,7 +3242,9 @@ function SOSPage({
       <div className="sos-dashboard">
         <div className="emergency-card">
           <span>ACTIVE SOS</span>
+
           <strong>{active.length}</strong>
+
           <small>
             Waiting for rescue response
           </small>
@@ -2170,9 +3252,13 @@ function SOSPage({
 
         <div className="emergency-card">
           <span>GPS STATUS</span>
+
           <strong>
-            {liveLocation ? "LOCKED" : "WAIT"}
+            {liveLocation
+              ? "LOCKED"
+              : "WAIT"}
           </strong>
+
           <small>
             {liveLocation
               ? "Live coordinates available"
@@ -2182,9 +3268,13 @@ function SOSPage({
 
         <div className="emergency-card">
           <span>NETWORK</span>
+
           <strong>
-            {isOnline ? "ONLINE" : "OFFLINE"}
+            {isOnline
+              ? "ONLINE"
+              : "OFFLINE"}
           </strong>
+
           <small>
             {isOnline
               ? "Sync available"
@@ -2198,6 +3288,7 @@ function SOSPage({
           <div className="panel-head">
             <div>
               <h2>Emergency Alerts</h2>
+
               <small>
                 Latest SOS requests
               </small>
@@ -2212,9 +3303,7 @@ function SOSPage({
             ) : (
               sosAlerts.map((sos) => (
                 <div
-                  className={`sos-card ${
-                    sos.status
-                  }`}
+                  className={`sos-card ${sos.status}`}
                   key={sos.id}
                 >
                   <div className="sos-avatar">
@@ -2230,11 +3319,11 @@ function SOSPage({
 
                     <small>
                       {sos.coordinates
-                        ? `${sos.coordinates[0].toFixed(
-                            4
-                          )}, ${sos.coordinates[1].toFixed(
-                            4
-                          )}`
+                        ? `${Number(
+                            sos.coordinates[0]
+                          ).toFixed(4)}, ${Number(
+                            sos.coordinates[1]
+                          ).toFixed(4)}`
                         : "No coordinates"}
                     </small>
                   </div>
@@ -2251,62 +3340,159 @@ function SOSPage({
         <section className="panel safe-route-panel">
           <div className="panel-head">
             <div>
+              <span className="eyebrow">
+                ROUTE ASSIST
+              </span>
+
               <h2>Safe Route</h2>
+
               <small>
-                Emergency route interface
+                Nearest demo safe zone
               </small>
             </div>
+
+            <span className="route-icon">
+              🛟
+            </span>
           </div>
 
-          <div className="route-preview">
-            <div className="route-map-fake">
-              <div className="route-line"></div>
-              <div className="route-start">
-                📍
+          {liveLocation &&
+          nearestZone ? (
+            <>
+              <div className="route-map-real">
+                <MapContainer
+                  center={[
+                    (liveLocation.latitude +
+                      nearestZone.lat) /
+                      2,
+                    (liveLocation.longitude +
+                      nearestZone.lng) /
+                      2,
+                  ]}
+                  zoom={7}
+                  scrollWheelZoom={false}
+                  dragging={true}
+                  zoomControl={true}
+                  className="route-mini-map"
+                >
+                  <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  <Marker
+                    position={[
+                      liveLocation.latitude,
+                      liveLocation.longitude,
+                    ]}
+                    icon={createLiveLocationIcon()}
+                  />
+
+                  <Marker
+                    position={[
+                      nearestZone.lat,
+                      nearestZone.lng,
+                    ]}
+                    icon={createSafeIcon()}
+                  />
+
+                  <Polyline
+                    positions={routeCoordinates}
+                    pathOptions={{
+                      color: "#2ddf91",
+                      weight: 5,
+                      dashArray: "10 8",
+                    }}
+                  />
+                </MapContainer>
               </div>
-              <div className="route-end">
-                🏥
+
+              <div className="route-info">
+                <div className="route-destination">
+                  <span>🛟</span>
+
+                  <div>
+                    <strong>
+                      {nearestZone.name}
+                    </strong>
+
+                    <small>
+                      {nearestZone.type} •{" "}
+                      {nearestZone.state}
+                    </small>
+                  </div>
+                </div>
+
+                <div className="distance-pill">
+                  {nearestZone.distance.toFixed(
+                    1
+                  )}{" "}
+                  km
+                </div>
               </div>
+
+              <div className="route-warning">
+                ⚠️ The line shown in the prototype
+                is a direct visual line, not a
+                verified road route. Use navigation
+                services and official emergency
+                instructions in a real emergency.
+              </div>
+
+              <button
+                className="primary-btn full-btn"
+                onClick={openNavigation}
+              >
+                🧭 Open Navigation
+              </button>
+            </>
+          ) : (
+            <div className="route-empty">
+              <div>📍</div>
+
+              <h3>
+                Waiting for your GPS
+              </h3>
+
+              <p>
+                Allow location access to calculate
+                the nearest demo safe zone.
+              </p>
+
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  setPage("map")
+                }
+              >
+                Open Map
+              </button>
             </div>
-          </div>
-
-          <div className="route-info">
-            <strong>
-              Nearest Safe Zone
-            </strong>
-
-            <p>
-              Rescue route can be generated from
-              current location when map routing
-              services are available.
-            </p>
-          </div>
-
-          <button
-            className="primary-btn full-btn"
-            onClick={() => setPage("map")}
-          >
-            Open Map →
-          </button>
+          )}
         </section>
+      </div>
+
+      <div className="map-note">
+        ⚠️ Safe zones in this prototype are
+        demonstration points and are not verified
+        emergency shelters.
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   AI AGENT
-   ========================================================= */
+   21. AI AGENT
+========================================================= */
 
 function AIAgent({ onClose }) {
-  const [messages, setMessages] =
-    useState([
-      {
-        from: "ai",
-        text:
-          "Hello! I am LandGuard AI Agent. Ask me about landslide risk, SOS, weather or safety.",
-      },
-    ]);
+  const [messages, setMessages] = useState([
+    {
+      from: "ai",
+      text:
+        "Hello! I am LandGuard AI Agent. Ask me about landslide risk, SOS, weather, GPS, safe routes or offline mode.",
+    },
+  ]);
 
   const [input, setInput] = useState("");
 
@@ -2317,43 +3503,69 @@ function AIAgent({ onClose }) {
       q.includes("sos") ||
       q.includes("emergency")
     ) {
-      return "For an emergency, use the red SOS button. Your GPS coordinates are attached when available. If offline, the alert is saved locally for synchronization.";
+      return (
+        "For an emergency, use the red SOS button. LandGuard stores an SOS locally when offline and marks it for synchronization when the network returns."
+      );
     }
 
     if (
       q.includes("risk") ||
       q.includes("landslide")
     ) {
-      return "LandGuard AI combines environmental indicators such as rainfall, soil moisture and slope conditions to demonstrate landslide risk assessment.";
+      return (
+        "LandGuard's prototype combines rainfall, soil moisture, slope and historical activity signals to generate a demonstration risk score."
+      );
     }
 
     if (q.includes("weather")) {
-      return "The Live Weather page uses your GPS coordinates to retrieve current weather conditions when an internet connection is available.";
+      return (
+        "Live weather is loaded from Open-Meteo using your GPS coordinates. Allow location permission for the best result."
+      );
     }
 
     if (q.includes("offline")) {
-      return "Offline Mode keeps reports and SOS records on the device. Network-dependent transmission cannot occur until connectivity returns.";
+      return (
+        "Offline mode keeps reports and SOS records on this device. A production version should use a service worker, IndexedDB and a real backend synchronization queue."
+      );
     }
 
-    if (q.includes("location")) {
-      return "Allow browser location permission to display your live GPS position on the India Risk Map.";
+    if (
+      q.includes("location") ||
+      q.includes("gps")
+    ) {
+      return (
+        "GPS is detected through your browser's location service. You can use Locate Me on the map to center the map on your current position."
+      );
     }
 
-    return "I can help with risk monitoring, live location, weather, hazard reporting, offline SOS and emergency safety information.";
+    if (
+      q.includes("route") ||
+      q.includes("safe")
+    ) {
+      return (
+        "The Safe Route feature identifies the nearest demonstration safe zone from your GPS location and can open navigation. The prototype line is not a verified road route."
+      );
+    }
+
+    return (
+      "I can help with risk monitoring, weather, GPS, SOS, offline mode, hazard reporting and safe-route features."
+    );
   }
 
   function send(text = input) {
-    if (!text.trim()) return;
+    const value = text.trim();
 
-    setMessages((prev) => [
-      ...prev,
+    if (!value) return;
+
+    setMessages((current) => [
+      ...current,
       {
         from: "user",
-        text,
+        text: value,
       },
       {
         from: "ai",
-        text: answer(text),
+        text: answer(value),
       },
     ]);
 
@@ -2361,27 +3573,43 @@ function AIAgent({ onClose }) {
   }
 
   return (
-    <div className="agent-dock">
-      <div className="agent-head">
+    <div className="ai-dock">
+      <div className="ai-dock-head">
         <div>
-          <div className="ai-pulse">
-            ✦
+          <div className="ai-title">
+            <span>✦</span>
+
+            <strong>LandGuard AI</strong>
           </div>
 
-          <div>
-            <strong>LandGuard AI</strong>
-            <small>AI SAFETY AGENT</small>
-          </div>
+          <small>
+            Safety intelligence assistant
+          </small>
         </div>
 
         <button onClick={onClose}>×</button>
       </div>
 
-      <div className="agent-suggestions">
+      <div className="ai-messages">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`ai-message ${message.from}`}
+          >
+            <span>
+              {message.from === "ai"
+                ? "✦"
+                : "You"}
+            </span>
+
+            <p>{message.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="ai-suggestions">
         <button
-          onClick={() =>
-            send("What is my landslide risk?")
-          }
+          onClick={() => send("What is my risk?")}
         >
           Risk
         </button>
@@ -2396,32 +3624,31 @@ function AIAgent({ onClose }) {
 
         <button
           onClick={() =>
-            send("Show weather information")
+            send("How does offline mode work?")
           }
         >
-          Weather
+          Offline
+        </button>
+
+        <button
+          onClick={() =>
+            send("How does safe route work?")
+          }
+        >
+          Safe Route
         </button>
       </div>
 
-      <div className="agent-messages">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`msg ${message.from}`}
-          >
-            {message.text}
-          </div>
-        ))}
-      </div>
-
-      <div className="agent-input">
+      <div className="ai-input">
         <input
           value={input}
           onChange={(e) =>
             setInput(e.target.value)
           }
           onKeyDown={(e) => {
-            if (e.key === "Enter") send();
+            if (e.key === "Enter") {
+              send();
+            }
           }}
           placeholder="Ask LandGuard AI..."
         />
@@ -2435,23 +3662,38 @@ function AIAgent({ onClose }) {
 }
 
 /* =========================================================
-   RESCUE DASHBOARD
-   ========================================================= */
+   22. RESCUE DASHBOARD
+========================================================= */
 
 function RescueDashboard({
   incidents,
-  setIncidents,
   sosAlerts,
+  setIncidents,
 }) {
-  const active = incidents.filter(
-    (i) => i.status !== "resolved"
-  );
+  const activeIncidents =
+    incidents.filter(
+      (item) =>
+        item.status !== "resolved"
+    ).length;
 
-  function changeStatus(id, status) {
-    setIncidents((prev) =>
-      prev.map((incident) =>
+  const activeSOS = sosAlerts.filter(
+    (item) =>
+      item.status === "active" ||
+      item.status === "queued-offline"
+  ).length;
+
+  function updateIncident(
+    id,
+    nextStatus
+  ) {
+    setIncidents((current) =>
+      current.map((incident) =>
         incident.id === id
-          ? { ...incident, status }
+          ? {
+              ...incident,
+              status: nextStatus,
+              time: "Just now",
+            }
           : incident
       )
     );
@@ -2462,7 +3704,7 @@ function RescueDashboard({
       <div className="page-title-row">
         <div>
           <span className="eyebrow">
-            RESCUE OPERATIONS
+            RESPONSE OPERATIONS
           </span>
 
           <div className="page-title">
@@ -2470,50 +3712,54 @@ function RescueDashboard({
           </div>
 
           <p>
-            Monitor incidents and emergency
-            response requests.
+            Monitor SOS alerts and active rescue
+            incidents.
           </p>
         </div>
 
-        <div className="rescue-online">
-          ● TEAM ONLINE
-        </div>
+        <span className="online-badge">
+          ● RESPONSE SYSTEM ACTIVE
+        </span>
       </div>
 
       <div className="rescue-metrics">
-        <div className="emergency-card">
-          <span>ACTIVE INCIDENTS</span>
-          <strong>{active.length}</strong>
-          <small>Needs response</small>
-        </div>
+        <MetricCard
+          icon="🚨"
+          title="Active Incidents"
+          value={activeIncidents}
+          note="Requires response"
+        />
 
-        <div className="emergency-card">
-          <span>ACTIVE SOS</span>
-          <strong>
-            {
-              sosAlerts.filter(
-                (s) =>
-                  s.status !== "resolved"
-              ).length
-            }
-          </strong>
-          <small>Emergency requests</small>
-        </div>
+        <MetricCard
+          icon="🆘"
+          title="Active SOS"
+          value={activeSOS}
+          note="Citizen alerts"
+        />
 
-        <div className="emergency-card">
-          <span>AVAILABLE TEAMS</span>
-          <strong>06</strong>
-          <small>Ready for deployment</small>
-        </div>
+        <MetricCard
+          icon="🚑"
+          title="Available Teams"
+          value="06"
+          note="Demo availability"
+        />
+
+        <MetricCard
+          icon="📡"
+          title="Network"
+          value="ONLINE"
+          note="Dispatch enabled"
+        />
       </div>
 
-      <section className="panel">
+      <div className="panel">
         <div className="panel-head">
           <div>
-            <h2>Incident Queue</h2>
-            <small>
-              Dispatch and response status
-            </small>
+            <span className="eyebrow">
+              INCIDENT QUEUE
+            </span>
+
+            <h2>Priority incidents</h2>
           </div>
         </div>
 
@@ -2523,25 +3769,23 @@ function RescueDashboard({
               className="incident-card"
               key={incident.id}
             >
-              <div
-                className={`severity-dot ${severityClass(
-                  incident.severity
-                )}`}
-              ></div>
+              <div className="incident-icon">
+                {incident.severity ===
+                "critical"
+                  ? "🚨"
+                  : "⚠️"}
+              </div>
 
-              <div className="incident-info">
-                <div className="incident-title">
-                  {incident.type}
-                </div>
-
+              <div className="incident-main">
                 <strong>
-                  {incident.location}
+                  {incident.type}
                 </strong>
 
-                <p>
-                  {incident.reportedBy} •{" "}
-                  {incident.time}
-                </p>
+                <span>
+                  {incident.id} •{" "}
+                  {incident.location},{" "}
+                  {incident.state}
+                </span>
 
                 <small>
                   Assigned:{" "}
@@ -2550,7 +3794,7 @@ function RescueDashboard({
               </div>
 
               <span
-                className={`incident-status ${incident.status}`}
+                className={`status-pill ${incident.status}`}
               >
                 {incident.status}
               </span>
@@ -2559,9 +3803,9 @@ function RescueDashboard({
                 {incident.status ===
                   "dispatched" && (
                   <button
-                    className="accept-btn"
+                    className="small-primary"
                     onClick={() =>
-                      changeStatus(
+                      updateIncident(
                         incident.id,
                         "responding"
                       )
@@ -2574,9 +3818,9 @@ function RescueDashboard({
                 {incident.status ===
                   "responding" && (
                   <button
-                    className="status-btn resolved"
+                    className="small-success"
                     onClick={() =>
-                      changeStatus(
+                      updateIncident(
                         incident.id,
                         "resolved"
                       )
@@ -2585,88 +3829,110 @@ function RescueDashboard({
                     Resolve
                   </button>
                 )}
-
-                {incident.status ===
-                  "resolved" && (
-                  <span className="resolved-text">
-                    ✓ Resolved
-                  </span>
-                )}
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
 
 /* =========================================================
-   INCIDENTS
-   ========================================================= */
+   23. INCIDENTS
+========================================================= */
 
 function Incidents({ incidents }) {
   return (
     <div className="page">
-      <div className="page-title">
-        Rescue Incidents
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            RESPONSE LOG
+          </span>
+
+          <div className="page-title">
+            Incidents
+          </div>
+
+          <p>
+            Centralized incident monitoring.
+          </p>
+        </div>
       </div>
 
-      <p className="page-subtitle">
-        Incident tracking and response status.
-      </p>
+      <div className="panel table-panel">
+        <div className="responsive-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Location</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Assigned</th>
+                <th>Time</th>
+              </tr>
+            </thead>
 
-      <div className="incident-table">
-        <div className="table-header">
-          <span>ID</span>
-          <span>Location</span>
-          <span>Severity</span>
-          <span>Status</span>
-          <span>Assigned</span>
+            <tbody>
+              {incidents.map((incident) => (
+                <tr key={incident.id}>
+                  <td>
+                    <strong>
+                      {incident.id}
+                    </strong>
+                  </td>
+
+                  <td>
+                    {incident.location}
+                    <small>
+                      {incident.state}
+                    </small>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`severity-badge ${incident.severity}`}
+                    >
+                      {incident.severity}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status-pill ${incident.status}`}
+                    >
+                      {incident.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    {incident.assignedTo}
+                  </td>
+
+                  <td>{incident.time}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        {incidents.map((incident) => (
-          <div
-            className="table-row"
-            key={incident.id}
-          >
-            <strong>{incident.id}</strong>
-
-            <span>{incident.location}</span>
-
-            <span
-              className={`pill ${severityClass(
-                incident.severity
-              )}`}
-            >
-              {incident.severity}
-            </span>
-
-            <span>
-              {incident.status}
-            </span>
-
-            <span>
-              {incident.assignedTo}
-            </span>
-          </div>
-        ))}
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   ADMIN DASHBOARD
-   ========================================================= */
+   24. ADMIN DASHBOARD
+========================================================= */
 
 function AdminDashboard({
   reports,
   incidents,
   sosAlerts,
 }) {
-  const critical = STATES.filter(
-    (s) => s.risk >= 85
+  const criticalStates = STATES.filter(
+    (state) => state.risk >= 85
   );
 
   return (
@@ -2674,7 +3940,7 @@ function AdminDashboard({
       <div className="page-title-row">
         <div>
           <span className="eyebrow">
-            SYSTEM CONTROL CENTER
+            SYSTEM CONTROL
           </span>
 
           <div className="page-title">
@@ -2682,245 +3948,262 @@ function AdminDashboard({
           </div>
 
           <p>
-            National monitoring system overview.
+            Platform health and monitoring
+            overview.
           </p>
         </div>
 
-        <span className="system-status">
+        <span className="online-badge">
           ● ALL SYSTEMS OPERATIONAL
         </span>
       </div>
 
-      <div className="admin-stat-grid">
-        <div className="admin-stat-card">
-          <small>TOTAL USERS</small>
-          <strong>1,284</strong>
-          <span>Registered users</span>
-        </div>
+      <div className="metrics-grid">
+        <MetricCard
+          icon="♙"
+          title="Total Users"
+          value="1,284"
+          note="Demo platform data"
+        />
 
-        <div className="admin-stat-card">
-          <small>HAZARD REPORTS</small>
-          <strong>
-            {reports.length}
-          </strong>
-          <span>Submitted reports</span>
-        </div>
+        <MetricCard
+          icon="▣"
+          title="Hazard Reports"
+          value={reports.length}
+          note="Citizen reports"
+        />
 
-        <div className="admin-stat-card high">
-          <small>ACTIVE INCIDENTS</small>
-          <strong>
-            {
-              incidents.filter(
-                (i) =>
-                  i.status !== "resolved"
-              ).length
-            }
-          </strong>
-          <span>Under response</span>
-        </div>
+        <MetricCard
+          icon="⚠"
+          title="Active Incidents"
+          value={
+            incidents.filter(
+              (i) => i.status !== "resolved"
+            ).length
+          }
+          note="Response queue"
+        />
 
-        <div className="admin-stat-card critical">
-          <small>ACTIVE SOS</small>
-          <strong>
-            {
-              sosAlerts.filter(
-                (s) =>
-                  s.status !== "resolved"
-              ).length
-            }
-          </strong>
-          <span>Emergency alerts</span>
-        </div>
+        <MetricCard
+          icon="🆘"
+          title="SOS Records"
+          value={sosAlerts.length}
+          note="Emergency queue"
+        />
+
+        <MetricCard
+          icon="🚨"
+          title="Critical States"
+          value={criticalStates.length}
+          note="Risk 85+"
+        />
       </div>
 
       <div className="two-col">
-        <section className="panel">
+        <div className="panel">
           <div className="panel-head">
             <div>
-              <h2>Critical States</h2>
-              <small>
-                Current prototype risk values
-              </small>
+              <span className="eyebrow">
+                SYSTEM HEALTH
+              </span>
+
+              <h2>Services</h2>
             </div>
           </div>
 
-          <div className="critical-state-list">
-            {critical.map((state) => (
-              <div
-                className="critical-state-row"
-                key={state.id}
-              >
-                <div>
-                  <strong>{state.name}</strong>
-                  <small>
-                    {state.capital}
-                  </small>
-                </div>
-
-                <span className="critical-score">
-                  {state.risk}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>System Health</h2>
-              <small>
-                Service monitoring
-              </small>
-            </div>
-          </div>
-
-          <div className="system-list">
-            <div>
-              <span>AI Prediction Engine</span>
-              <strong>ONLINE</strong>
-            </div>
-
-            <div>
-              <span>GPS Monitoring</span>
-              <strong>ONLINE</strong>
-            </div>
-
-            <div>
-              <span>Risk Map</span>
-              <strong>ONLINE</strong>
-            </div>
-
-            <div>
-              <span>Emergency Queue</span>
-              <strong>ONLINE</strong>
-            </div>
-
-            <div>
-              <span>Weather Service</span>
-              <strong>ONLINE</strong>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   USERS
-   ========================================================= */
-
-function UsersPage() {
-  const users = [
-    [
-      "Citizen User",
-      "citizen@landguard.ai",
-      "Citizen",
-    ],
-    [
-      "Rescue Officer",
-      "rescue@landguard.ai",
-      "Rescue",
-    ],
-    [
-      "System Admin",
-      "admin@landguard.ai",
-      "Admin",
-    ],
-  ];
-
-  return (
-    <div className="page">
-      <div className="page-title">
-        Users
-      </div>
-
-      <p className="page-subtitle">
-        LandGuard AI platform accounts.
-      </p>
-
-      <div className="user-list">
-        {users.map(
-          ([name, email, role]) => (
+          {[
+            "AI Prediction Engine",
+            "GPS Monitoring",
+            "Risk Map",
+            "Emergency Queue",
+            "Weather Service",
+            "Citizen Reporting",
+          ].map((service) => (
             <div
-              className="user-row"
-              key={email}
+              className="service-row"
+              key={service}
             >
-              <div className="avatar">
-                {name.charAt(0)}
-              </div>
+              <span className="status-dot"></span>
 
-              <div>
-                <strong>{name}</strong>
-                <small>{email}</small>
-              </div>
+              <strong>{service}</strong>
 
-              <span className="role-text">
-                {role}
-              </span>
-
-              <span className="user-status">
-                Active
+              <span className="service-online">
+                ONLINE
               </span>
             </div>
-          )
-        )}
+          ))}
+        </div>
+
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <span className="eyebrow">
+                CRITICAL WATCH
+              </span>
+
+              <h2>
+                Highest risk states
+              </h2>
+            </div>
+          </div>
+
+          {criticalStates.map((state) => (
+            <div
+              className="critical-watch-row"
+              key={state.id}
+            >
+              <div>
+                <strong>
+                  {state.name}
+                </strong>
+
+                <small>
+                  {state.capital}
+                </small>
+              </div>
+
+              <span className="critical-score">
+                {state.risk}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   MONITOR REPORTS
-   ========================================================= */
+   25. MONITOR REPORTS
+========================================================= */
 
 function MonitorReports({ reports }) {
   return (
     <div className="page">
-      <div className="page-title">
-        Monitor Reports
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            CITIZEN INTELLIGENCE
+          </span>
+
+          <div className="page-title">
+            Monitor Reports
+          </div>
+
+          <p>
+            Review citizen-submitted hazards.
+          </p>
+        </div>
       </div>
 
-      <p className="page-subtitle">
-        Citizen hazard submissions.
-      </p>
-
-      <div className="report-list">
-        {reports.map((report) => (
-          <div
-            className="report-row"
-            key={report.id}
-          >
-            <div className="report-photo">
-              {report.photo ? (
-                <img
-                  src={report.photo}
-                  alt=""
-                />
-              ) : (
-                "📷"
-              )}
-            </div>
-
-            <div className="report-content">
-              <div className="report-title-line">
-                <h3>{report.title}</h3>
-
-                <span
-                  className={`pill ${severityClass(
-                    report.severity
-                  )}`}
-                >
-                  {report.severity}
-                </span>
+      <div className="panel">
+        <div className="reports-list">
+          {reports.map((report) => (
+            <div
+              className="monitor-report"
+              key={report.id}
+            >
+              <div className="monitor-report-image">
+                {report.photo ? (
+                  <img
+                    src={report.photo}
+                    alt={report.title}
+                  />
+                ) : (
+                  "📷"
+                )}
               </div>
 
-              <p>{report.description}</p>
+              <div className="monitor-report-content">
+                <div>
+                  <strong>
+                    {report.title}
+                  </strong>
 
-              <small>
-                Status: {report.status}
-              </small>
+                  <span className="report-id">
+                    {report.id}
+                  </span>
+                </div>
+
+                <p>
+                  {report.description}
+                </p>
+
+                <small>
+                  Status: {report.status}
+                </small>
+              </div>
+
+              <span
+                className={`severity-badge ${severityClass(
+                  report.severity
+                )}`}
+              >
+                {report.severity}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   26. USERS PAGE
+========================================================= */
+
+function UsersPage() {
+  const users = [
+    ...USERS,
+    {
+      email: "registered@landguard.ai",
+      password: "******",
+      name: "Registered Citizen",
+      role: "citizen",
+    },
+  ];
+
+  return (
+    <div className="page">
+      <div className="page-title-row">
+        <div>
+          <span className="eyebrow">
+            PLATFORM ACCESS
+          </span>
+
+          <div className="page-title">
+            Users
+          </div>
+
+          <p>
+            User and role management.
+          </p>
+        </div>
+      </div>
+
+      <div className="user-grid">
+        {users.map((user, index) => (
+          <div
+            className="user-card"
+            key={`${user.email}-${index}`}
+          >
+            <div className="user-avatar">
+              {user.name
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+
+            <div>
+              <strong>{user.name}</strong>
+
+              <small>{user.email}</small>
+
+              <span
+                className={`role-badge ${user.role}`}
+              >
+                {user.role}
+              </span>
             </div>
           </div>
         ))}
@@ -2930,17 +4213,29 @@ function MonitorReports({ reports }) {
 }
 
 /* =========================================================
-   MAIN APP
-   ========================================================= */
+   27. MAIN APP
+========================================================= */
 
 export default function App() {
-  const [user, setUser] = useState(
-    () =>
-      readJSON("landguard-user", null)
+  const [user, setUser] = useState(() =>
+    readJSON("landguard-user", null)
   );
 
   const [page, setPage] =
     useState("dashboard");
+
+  const [language, setLanguage] =
+    useState(() => {
+      try {
+        return (
+          localStorage.getItem(
+            "landguard-language"
+          ) || "en"
+        );
+      } catch {
+        return "en";
+      }
+    });
 
   const [isOnline, setIsOnline] =
     useState(
@@ -2978,30 +4273,27 @@ export default function App() {
   const [selectedState, setSelectedState] =
     useState(STATES[0]);
 
-  const [reports, setReports] = useState(
-    () =>
-      readJSON(
-        "landguard-reports",
-        INITIAL_REPORTS
-      )
+  const [reports, setReports] = useState(() =>
+    readJSON(
+      "landguard-reports",
+      INITIAL_REPORTS
+    )
   );
 
   const [incidents, setIncidents] =
-    useState(
-      () =>
-        readJSON(
-          "landguard-incidents",
-          INITIAL_INCIDENTS
-        )
+    useState(() =>
+      readJSON(
+        "landguard-incidents",
+        INITIAL_INCIDENTS
+      )
     );
 
   const [sosAlerts, setSosAlerts] =
-    useState(
-      () =>
-        readJSON(
-          "landguard-sos",
-          INITIAL_SOS
-        )
+    useState(() =>
+      readJSON(
+        "landguard-sos",
+        INITIAL_SOS
+      )
     );
 
   const [showReport, setShowReport] =
@@ -3013,36 +4305,25 @@ export default function App() {
   const [showAI, setShowAI] =
     useState(false);
 
-  const [toast, setToast] = useState("");
-
-  /* =====================================================
-     TOAST
-     ===================================================== */
-
-  function notify(message) {
-    setToast(message);
-
-    setTimeout(() => {
-      setToast("");
-    }, 3500);
-  }
+  const [toast, setToast] =
+    useState("");
 
   /* =====================================================
      ONLINE / OFFLINE
-     ===================================================== */
+  ===================================================== */
 
   useEffect(() => {
     function online() {
       setIsOnline(true);
-      notify(
-        "🟢 Internet restored. Offline queue ready for sync."
+      setToast(
+        "Internet restored. Offline records are ready for synchronization."
       );
     }
 
     function offline() {
       setIsOnline(false);
-      notify(
-        "📴 Offline Mode enabled. SOS and reports are saved locally."
+      setToast(
+        "Offline mode enabled. New SOS and reports will be stored locally."
       );
     }
 
@@ -3070,25 +4351,36 @@ export default function App() {
   }, []);
 
   /* =====================================================
-     GPS
-     ===================================================== */
+     TOAST AUTO HIDE
+  ===================================================== */
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationPermission(
-        "unsupported"
-      );
+    if (!toast) return;
 
+    const timer = setTimeout(
+      () => setToast(""),
+      4500
+    );
+
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  /* =====================================================
+     GPS
+  ===================================================== */
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (!navigator.geolocation) {
+      setLocationPermission("unsupported");
       setLocationError(
         "Geolocation is not supported by this browser."
       );
-
       return;
     }
 
-    setLocationPermission(
-      "requesting"
-    );
+    setLocationPermission("requesting");
 
     const watchId =
       navigator.geolocation.watchPosition(
@@ -3114,30 +4406,23 @@ export default function App() {
           setLocationError("");
         },
         (error) => {
-          if (
-            error.code ===
-            error.PERMISSION_DENIED
-          ) {
-            setLocationPermission(
-              "denied"
-            );
+          setLocationPermission(
+            error.code === 1
+              ? "denied"
+              : "error"
+          );
 
+          if (error.code === 1) {
             setLocationError(
-              "Location permission denied."
+              "Location permission was denied."
             );
-          } else if (
-            error.code ===
-            error.POSITION_UNAVAILABLE
-          ) {
+          } else if (error.code === 2) {
             setLocationError(
-              "Current location unavailable."
+              "Location is currently unavailable."
             );
-          } else if (
-            error.code ===
-            error.TIMEOUT
-          ) {
+          } else if (error.code === 3) {
             setLocationError(
-              "GPS request timed out."
+              "Location request timed out."
             );
           }
         },
@@ -3152,133 +4437,95 @@ export default function App() {
       navigator.geolocation.clearWatch(
         watchId
       );
-  }, []);
+  }, [user]);
 
   /* =====================================================
      LIVE WEATHER
-     ===================================================== */
-
-  const latKey = liveLocation
-    ? Number(
-        liveLocation.latitude.toFixed(2)
-      )
-    : null;
-
-  const lngKey = liveLocation
-    ? Number(
-        liveLocation.longitude.toFixed(2)
-      )
-    : null;
+  ===================================================== */
 
   useEffect(() => {
-    if (
-      latKey === null ||
-      lngKey === null
-    ) {
-      return;
-    }
+    if (!liveLocation) return;
 
-    const cached = readJSON(
-      "landguard-live-weather",
-      null
-    );
+    let cancelled = false;
 
-    const last =
-      cached?.fetchedAt
-        ? new Date(
-            cached.fetchedAt
-          ).getTime()
-        : 0;
+    async function fetchWeather() {
+      const latKey =
+        Math.round(
+          liveLocation.latitude * 100
+        ) / 100;
 
-    if (
-      Date.now() - last <
-      10 * 60 * 1000
-    ) {
-      setLiveWeather(cached);
-      return;
-    }
+      const lngKey =
+        Math.round(
+          liveLocation.longitude * 100
+        ) / 100;
 
-    if (!navigator.onLine) {
-      setWeatherError(
-        "Offline. Showing last saved weather."
-      );
-      return;
-    }
-
-    const controller =
-      new AbortController();
-
-    async function loadWeather() {
-      setWeatherLoading(true);
+      const url =
+        `https://api.open-meteo.com/v1/forecast?latitude=${latKey}` +
+        `&longitude=${lngKey}` +
+        `&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code,wind_speed_10m` +
+        `&timezone=auto`;
 
       try {
-        const url =
-          `https://api.open-meteo.com/v1/forecast?latitude=${latKey}&longitude=${lngKey}` +
-          `&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code,wind_speed_10m` +
-          `&timezone=auto`;
+        setWeatherLoading(true);
+        setWeatherError("");
 
-        const response =
-          await fetch(url, {
-            signal:
-              controller.signal,
-          });
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(
-            "Weather failed"
+            "Weather service unavailable."
           );
         }
 
-        const data =
-          await response.json();
+        const data = await response.json();
 
-        const weather = {
+        if (cancelled) return;
+
+        const current = {
           ...data.current,
-          units: data.current_units,
-          latitude: latKey,
-          longitude: lngKey,
-          fetchedAt:
+          updatedAt:
             new Date().toISOString(),
         };
 
-        setLiveWeather(weather);
+        setLiveWeather(current);
 
         writeJSON(
           "landguard-live-weather",
-          weather
+          current
         );
-
-        setWeatherError("");
       } catch (error) {
-        if (
-          error.name !==
-          "AbortError"
-        ) {
-          const saved = readJSON(
-            "landguard-live-weather",
-            null
-          );
-
-          setLiveWeather(saved);
-
+        if (!cancelled) {
           setWeatherError(
-            "Live weather unavailable. Showing saved weather."
+            error.message ||
+              "Unable to load weather."
           );
         }
       } finally {
-        setWeatherLoading(false);
+        if (!cancelled) {
+          setWeatherLoading(false);
+        }
       }
     }
 
-    loadWeather();
+    fetchWeather();
 
-    return () =>
-      controller.abort();
-  }, [latKey, lngKey]);
+    const interval = setInterval(
+      fetchWeather,
+      10 * 60 * 1000
+    );
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [
+    liveLocation?.latitude,
+    liveLocation?.longitude,
+  ]);
 
   /* =====================================================
-     SAVE DATA
-     ===================================================== */
+     PERSISTENCE
+  ===================================================== */
 
   useEffect(() => {
     writeJSON(
@@ -3302,87 +4549,126 @@ export default function App() {
   }, [sosAlerts]);
 
   /* =====================================================
-     OFFLINE QUEUE SYNC STATUS
-     ===================================================== */
+     OFFLINE SYNC QUEUE
+  ===================================================== */
 
   useEffect(() => {
     if (!isOnline) return;
 
-    setReports((prev) =>
-      prev.map((report) =>
-        report.synced === false
-          ? {
+    setReports((current) =>
+      current.map((report) =>
+        report.synced
+          ? report
+          : {
               ...report,
               synced: true,
               status: "submitted",
             }
-          : report
       )
     );
 
-    setSosAlerts((prev) =>
-      prev.map((sos) =>
-        sos.synced === false
-          ? {
+    setSosAlerts((current) =>
+      current.map((sos) =>
+        sos.synced
+          ? sos
+          : {
               ...sos,
               synced: true,
               status: "active",
             }
-          : sos
       )
     );
   }, [isOnline]);
 
   /* =====================================================
-     REPORT
-     ===================================================== */
+     LOGIN
+  ===================================================== */
 
-  async function createReport(data) {
+  function handleLogin(nextUser) {
+    setUser(nextUser);
+
+    writeJSON(
+      "landguard-user",
+      nextUser
+    );
+
+    if (nextUser.role === "citizen") {
+      setPage("dashboard");
+    } else if (
+      nextUser.role === "rescue"
+    ) {
+      setPage("rescue");
+    } else {
+      setPage("admin");
+    }
+
+    setToast(
+      `Welcome to LandGuard AI, ${nextUser.name}`
+    );
+  }
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
+  function logout() {
+    try {
+      localStorage.removeItem(
+        "landguard-user"
+      );
+    } catch {
+      // ignore
+    }
+
+    setUser(null);
+    setPage("dashboard");
+    setShowAI(false);
+  }
+
+  /* =====================================================
+     CREATE REPORT
+  ===================================================== */
+
+  function createReport(data) {
     const report = {
       id: `REP-${Date.now()}`,
       title: data.title,
       description: data.description,
       severity: data.severity,
-      photo: data.photo,
-      coordinates:
-        data.coordinates,
-      createdAt:
-        new Date().toISOString(),
-      synced: isOnline,
+      photo: data.photo || "",
       status: isOnline
         ? "submitted"
         : "pending-offline",
+      synced: isOnline,
+      coordinates: liveLocation
+        ? [
+            liveLocation.latitude,
+            liveLocation.longitude,
+          ]
+        : null,
+      createdAt:
+        new Date().toISOString(),
+      reportedBy:
+        user?.name || "Citizen",
     };
 
-    const saved = writeJSON(
-      "landguard-reports",
-      [report, ...reports]
-    );
-
-    if (!saved && data.photo) {
-      notify(
-        "⚠ Photo is too large for local storage."
-      );
-      return;
-    }
-
-    setReports((prev) => [
+    setReports((current) => [
       report,
-      ...prev,
+      ...current,
     ]);
 
     setShowReport(false);
 
-    notify(
+    setToast(
       isOnline
-        ? "✅ Hazard report submitted successfully."
-        : "📴 Report saved offline. It will sync when online."
+        ? "Hazard report submitted successfully."
+        : "Report saved offline. It will sync when online."
     );
   }
 
   /* =====================================================
-     SOS
-     ===================================================== */
+     SEND SOS
+  ===================================================== */
 
   function sendSOS() {
     const selected =
@@ -3390,16 +4676,12 @@ export default function App() {
 
     const sos = {
       id: `SOS-${Date.now()}`,
-
       status: isOnline
         ? "active"
         : "queued-offline",
-
       synced: isOnline,
-
       reportedBy:
         user?.name || "Citizen",
-
       coordinates: liveLocation
         ? [
             liveLocation.latitude,
@@ -3409,21 +4691,17 @@ export default function App() {
             selected.lat,
             selected.lng,
           ],
-
       accuracy:
         liveLocation?.accuracy || null,
-
       source: liveLocation
         ? "live-gps"
         : "selected-state",
-
       createdAt:
         new Date().toISOString(),
     };
 
     const incident = {
       id: `INC-${Date.now()}`,
-
       location: liveLocation
         ? `${liveLocation.latitude.toFixed(
             5
@@ -3431,83 +4709,57 @@ export default function App() {
             5
           )}`
         : `${selected.capital}, ${selected.name}`,
-
       state: selected.name,
-
       severity: "critical",
-
       type: "SOS Emergency",
-
       status: "dispatched",
-
       assignedTo: "Unassigned",
-
       reportedBy:
         user?.name || "Citizen",
-
       time: "Just now",
     };
 
-    setSosAlerts((prev) => [
+    setSosAlerts((current) => [
       sos,
-      ...prev,
+      ...current,
     ]);
 
-    setIncidents((prev) => [
+    setIncidents((current) => [
       incident,
-      ...prev,
+      ...current,
     ]);
 
     setShowSOS(false);
 
-    notify(
+    setToast(
       isOnline
-        ? "🆘 SOS sent. Rescue team has been notified."
-        : "📴 SOS saved offline. It will sync when connection returns."
+        ? "🆘 SOS sent. Rescue queue updated."
+        : "🆘 SOS saved offline and queued for synchronization."
     );
+
+    setPage("sos");
   }
 
   /* =====================================================
-     LOGOUT
-     ===================================================== */
-
-  function logout() {
-    localStorage.removeItem(
-      "landguard-user"
-    );
-
-    setUser(null);
-    setPage("dashboard");
-
-    notify("Logged out.");
-  }
-
-  /* =====================================================
-     PAGE
-     ===================================================== */
+     PAGE ROUTING
+  ===================================================== */
 
   const pageContent = useMemo(() => {
     if (!user) return null;
 
     if (
-      user.role === "citizen" &&
-      page === "dashboard"
+      page === "dashboard" &&
+      user.role === "citizen"
     ) {
       return (
         <Dashboard
           setPage={setPage}
-          selectedState={
-            selectedState
-          }
+          selectedState={selectedState}
           setSelectedState={
             setSelectedState
           }
-          liveLocation={
-            liveLocation
-          }
-          liveWeather={
-            liveWeather
-          }
+          liveLocation={liveLocation}
+          liveWeather={liveWeather}
         />
       );
     }
@@ -3515,12 +4767,8 @@ export default function App() {
     if (page === "map") {
       return (
         <IndiaRiskMap
-          liveLocation={
-            liveLocation
-          }
-          locateSignal={
-            locateSignal
-          }
+          liveLocation={liveLocation}
+          locateSignal={locateSignal}
           setLocateSignal={
             setLocateSignal
           }
@@ -3532,18 +4780,12 @@ export default function App() {
     if (page === "weather") {
       return (
         <WeatherPage
-          liveLocation={
-            liveLocation
-          }
-          liveWeather={
-            liveWeather
-          }
+          liveLocation={liveLocation}
+          liveWeather={liveWeather}
           weatherLoading={
             weatherLoading
           }
-          weatherError={
-            weatherError
-          }
+          weatherError={weatherError}
         />
       );
     }
@@ -3556,29 +4798,40 @@ export default function App() {
       return <RiskCalculator />;
     }
 
-    if (page === "reports") {
+    if (
+      page === "reports" &&
+      user.role === "citizen"
+    ) {
       return (
         <Reports
           reports={reports}
           setShowReport={
             setShowReport
           }
+        />
+      );
+    }
+
+    if (page === "sos") {
+      return (
+        <SOSPage
+          sosAlerts={sosAlerts}
           isOnline={isOnline}
+          liveLocation={liveLocation}
+          setPage={setPage}
         />
       );
     }
 
     if (
-      user.role === "rescue" &&
-      page === "rescue"
+      page === "rescue" &&
+      user.role === "rescue"
     ) {
       return (
         <RescueDashboard
           incidents={incidents}
-          setIncidents={
-            setIncidents
-          }
           sosAlerts={sosAlerts}
+          setIncidents={setIncidents}
         />
       );
     }
@@ -3591,22 +4844,9 @@ export default function App() {
       );
     }
 
-    if (page === "sos") {
-      return (
-        <SOSPage
-          sosAlerts={sosAlerts}
-          isOnline={isOnline}
-          liveLocation={
-            liveLocation
-          }
-          setPage={setPage}
-        />
-      );
-    }
-
     if (
-      user.role === "admin" &&
-      page === "admin"
+      page === "admin" &&
+      user.role === "admin"
     ) {
       return (
         <AdminDashboard
@@ -3618,8 +4858,8 @@ export default function App() {
     }
 
     if (
-      user.role === "admin" &&
-      page === "monitor"
+      page === "monitor" &&
+      user.role === "admin"
     ) {
       return (
         <MonitorReports
@@ -3629,8 +4869,8 @@ export default function App() {
     }
 
     if (
-      user.role === "admin" &&
-      page === "users"
+      page === "users" &&
+      user.role === "admin"
     ) {
       return <UsersPage />;
     }
@@ -3638,18 +4878,12 @@ export default function App() {
     return (
       <Dashboard
         setPage={setPage}
-        selectedState={
-          selectedState
-        }
+        selectedState={selectedState}
         setSelectedState={
           setSelectedState
         }
-        liveLocation={
-          liveLocation
-        }
-        liveWeather={
-          liveWeather
-        }
+        liveLocation={liveLocation}
+        liveWeather={liveWeather}
       />
     );
   }, [
@@ -3670,18 +4904,7 @@ export default function App() {
   if (!user) {
     return (
       <LoginScreen
-        onLogin={(newUser) => {
-          setUser(newUser);
-
-          setPage(
-            newUser.role === "citizen"
-              ? "dashboard"
-              : newUser.role ===
-                "rescue"
-              ? "rescue"
-              : "admin"
-          );
-        }}
+        onLogin={handleLogin}
       />
     );
   }
@@ -3693,63 +4916,35 @@ export default function App() {
         page={page}
         setPage={setPage}
         logout={logout}
+        language={language}
       />
 
-      <main className="main">
+      <main className="main-area">
         <Topbar
           user={user}
           isOnline={isOnline}
-          liveLocation={
-            liveLocation
-          }
+          liveLocation={liveLocation}
           locationPermission={
             locationPermission
           }
           onSOS={() =>
             setShowSOS(true)
           }
+          language={language}
+          setLanguage={setLanguage}
+          setShowAI={setShowAI}
         />
 
-        {!isOnline && (
-          <div className="offline-banner global">
-            <span>●</span>
-
-            <strong>
-              Offline Mode
-            </strong>
-
-            <span>
-              SOS and reports are saved locally.
-              Network transmission will resume
-              after reconnection.
-            </span>
+        {locationError && (
+          <div className="location-warning">
+            📍 {locationError}
           </div>
         )}
 
-        <div className="content">
-          {locationError && (
-            <div className="location-warning">
-              📍 {locationError}
-            </div>
-          )}
-
+        <div className="page-wrapper">
           {pageContent}
         </div>
       </main>
-
-      {/* AI AGENT */}
-
-      {!showAI && (
-        <button
-          className="ai-floating-btn"
-          onClick={() =>
-            setShowAI(true)
-          }
-        >
-          <span>✦</span>
-          AI Agent
-        </button>
-      )}
 
       {showAI && (
         <AIAgent
@@ -3759,21 +4954,15 @@ export default function App() {
         />
       )}
 
-      {/* REPORT */}
-
       {showReport && (
         <ReportModal
           onClose={() =>
             setShowReport(false)
           }
           onSubmit={createReport}
-          liveLocation={
-            liveLocation
-          }
+          liveLocation={liveLocation}
         />
       )}
-
-      {/* SOS */}
 
       {showSOS && (
         <SOSModal
@@ -3781,21 +4970,31 @@ export default function App() {
             setShowSOS(false)
           }
           onSend={sendSOS}
-          liveLocation={
-            liveLocation
-          }
-          liveWeather={
-            liveWeather
-          }
+          liveLocation={liveLocation}
+          liveWeather={liveWeather}
           isOnline={isOnline}
         />
       )}
 
-      {/* TOAST */}
-
       {toast && (
         <div className="toast">
-          {toast}
+          <span>✦</span>
+
+          <div>
+            <strong>
+              LandGuard AI
+            </strong>
+
+            <small>{toast}</small>
+          </div>
+
+          <button
+            onClick={() =>
+              setToast("")
+            }
+          >
+            ×
+          </button>
         </div>
       )}
     </div>
