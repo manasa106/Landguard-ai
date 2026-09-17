@@ -27,7 +27,149 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+// =====================================================
+// SOS SCHEMA & MODEL
+// =====================================================
+const sosSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true
+  },
 
+  reportedBy: {
+    type: String,
+    default: "Citizen"
+  },
+
+  userId: {
+    type: String,
+    default: null
+  },
+
+  status: {
+    type: String,
+    enum: ["active", "queued-offline", "acknowledged", "responding", "resolved"],
+    default: "active"
+  },
+
+  coordinates: {
+    latitude: {
+      type: Number,
+      default: null
+    },
+    longitude: {
+      type: Number,
+      default: null
+    }
+  },
+
+  accuracy: {
+    type: Number,
+    default: null
+  },
+
+  source: {
+    type: String,
+    enum: ["live-gps", "selected-state", "unknown"],
+    default: "unknown"
+  },
+
+  locationName: {
+    type: String,
+    default: "Unknown location"
+  },
+
+  weather: {
+    temperature: { type: Number, default: null },
+    humidity: { type: Number, default: null },
+    rain: { type: Number, default: null },
+    weatherCode: { type: Number, default: null }
+  },
+
+  synced: {
+    type: Boolean,
+    default: true
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const SOS = mongoose.model("SOS", sosSchema);
+
+// =====================================================
+// HAZARD REPORT SCHEMA & MODEL
+// =====================================================
+
+const reportSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true
+  },
+
+  userId: {
+    type: String,
+    default: null
+  },
+
+  reportedBy: {
+    type: String,
+    default: "Citizen"
+  },
+
+  title: {
+    type: String,
+    required: true
+  },
+
+  description: {
+    type: String,
+    default: ""
+  },
+
+  severity: {
+    type: String,
+    default: "Moderate"
+  },
+
+  photo: {
+    type: String,
+    default: ""
+  },
+
+  status: {
+    type: String,
+    default: "submitted"
+  },
+
+  synced: {
+    type: Boolean,
+    default: true
+  },
+
+  coordinates: {
+    latitude: {
+      type: Number,
+      default: null
+    },
+
+    longitude: {
+      type: Number,
+      default: null
+    }
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Report = mongoose.model("Report", reportSchema);
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB: CONNECTED successfully'))
@@ -163,6 +305,342 @@ app.post("/api/login", async (req, res) => {
   } catch (error) {
     console.error("LOGIN ERROR:", error.message);
     res.status(500).json({ success: false, message: "Login failed." });
+  }
+});
+// =====================================================
+// SOS — CREATE EMERGENCY ALERT
+// =====================================================
+app.post("/api/sos", async (req, res) => {
+  try {
+    const {
+      userId,
+      reportedBy,
+      coordinates,
+      accuracy,
+      source,
+      locationName,
+      weather,
+      synced = true
+    } = req.body;
+
+    // Validate GPS if provided
+    let latitude = null;
+    let longitude = null;
+
+    if (coordinates) {
+      latitude = Number(coordinates.latitude);
+      longitude = Number(coordinates.longitude);
+
+      if (
+        Number.isNaN(latitude) ||
+        Number.isNaN(longitude) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid GPS coordinates."
+        });
+      }
+    }
+
+    const sosId = "SOS-" + Date.now();
+
+    const newSOS = new SOS({
+      id: sosId,
+
+      userId: userId || null,
+
+      reportedBy: reportedBy || "Citizen",
+
+      status: synced ? "active" : "queued-offline",
+
+      coordinates: {
+        latitude,
+        longitude
+      },
+
+      accuracy:
+        accuracy !== null && accuracy !== undefined
+          ? Number(accuracy)
+          : null,
+
+      source:
+        source || (coordinates ? "live-gps" : "unknown"),
+
+      locationName:
+        locationName || "Unknown location",
+
+      weather: {
+        temperature:
+          weather?.temperature !== undefined
+            ? Number(weather.temperature)
+            : null,
+
+        humidity:
+          weather?.humidity !== undefined
+            ? Number(weather.humidity)
+            : null,
+
+        rain:
+          weather?.rain !== undefined
+            ? Number(weather.rain)
+            : null,
+
+        weatherCode:
+          weather?.weatherCode !== undefined
+            ? Number(weather.weatherCode)
+            : null
+      },
+
+      synced: Boolean(synced)
+    });
+
+    await newSOS.save();
+
+    console.log("🚨 SOS SAVED TO MONGODB:", newSOS.id);
+
+    // Telegram emergency alert
+    if (synced) {
+      const telegramResult = await sendTelegramAlert({
+        location: locationName || "Emergency GPS Location",
+        rainfall: weather?.rain || 0,
+        soilMoisture: 0,
+        slopeRisk: 0,
+        riskScore: 100,
+        latitude,
+        longitude
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "SOS emergency alert saved successfully.",
+        sos: newSOS,
+        telegram: telegramResult
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "SOS saved offline and queued for synchronization.",
+      sos: newSOS,
+      telegram: null
+    });
+
+  } catch (error) {
+    console.error("SOS CREATE ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to create SOS alert."
+    });
+  }
+});
+
+
+// =====================================================
+// SOS — GET ALL ALERTS
+// =====================================================
+app.get("/api/sos", async (req, res) => {
+  try {
+    const sosAlerts = await SOS
+      .find()
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: sosAlerts.length,
+      sosAlerts
+    });
+
+  } catch (error) {
+    console.error("SOS FETCH ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to fetch SOS alerts."
+    });
+  }
+});
+
+
+// =====================================================
+// SOS — UPDATE STATUS
+// =====================================================
+app.patch("/api/sos/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "active",
+      "queued-offline",
+      "acknowledged",
+      "responding",
+      "resolved"
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid SOS status."
+      });
+    }
+
+    const sos = await SOS.findOneAndUpdate(
+      { id: req.params.id },
+      {
+        status,
+        synced: true
+      },
+      {
+        new: true
+      }
+    );
+
+    if (!sos) {
+      return res.status(404).json({
+        success: false,
+        message: "SOS alert not found."
+      });
+    }
+
+    console.log(
+      `🚑 SOS ${sos.id} status changed to ${status}`
+    );
+
+    res.json({
+      success: true,
+      message: `SOS status updated to ${status}.`,
+      sos
+    });
+
+  } catch (error) {
+    console.error("SOS STATUS ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to update SOS status."
+    });
+  }
+});
+// =====================================================
+// HAZARD REPORT — CREATE
+// =====================================================
+
+app.post("/api/reports", async (req, res) => {
+  try {
+    const {
+      id,
+      userId,
+      reportedBy,
+      title,
+      description,
+      severity,
+      photo,
+      status,
+      synced,
+      coordinates
+    } = req.body;
+
+    if (!title) {
+      return res.status(400).json({
+        success: false,
+        message: "Report title is required."
+      });
+    }
+
+    const report = new Report({
+      id: id || `REP-${Date.now()}`,
+
+      userId: userId || null,
+
+      reportedBy:
+        reportedBy || "Citizen",
+
+      title,
+
+      description:
+        description || "",
+
+      severity:
+        severity || "Moderate",
+
+      photo:
+        photo || "",
+
+      status:
+        status || "submitted",
+
+      synced:
+        synced !== false,
+
+      coordinates: {
+        latitude:
+          coordinates?.latitude ?? null,
+
+        longitude:
+          coordinates?.longitude ?? null
+      }
+    });
+
+    await report.save();
+
+    console.log(
+      "📷 HAZARD REPORT SAVED:",
+      report.id
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Hazard report saved successfully.",
+      report
+    });
+
+  } catch (error) {
+
+    console.error(
+      "REPORT CREATE ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to save hazard report."
+    });
+  }
+});
+
+
+// =====================================================
+// HAZARD REPORT — GET ALL
+// =====================================================
+
+app.get("/api/reports", async (req, res) => {
+  try {
+
+    const reports = await Report
+      .find()
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: reports.length,
+      reports
+    });
+
+  } catch (error) {
+
+    console.error(
+      "REPORT FETCH ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to fetch reports."
+    });
   }
 });
 
