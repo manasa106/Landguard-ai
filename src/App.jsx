@@ -955,6 +955,9 @@ function LoginScreen({ onLogin }) {
   const [password, setPassword] = useState("123456");
 
   const [name, setName] = useState("");
+  // ---- Idu nimma submit function ----
+ 
+
 
   const [role, setRole] = useState("citizen");
 
@@ -984,6 +987,39 @@ function LoginScreen({ onLogin }) {
 
       return;
     }
+    async function submit(event) {
+    event.preventDefault();
+
+    const endpoint = mode === "register" 
+      ? "http://localhost:5000/api/register" 
+      : "http://localhost:5000/api/login";
+
+    const payload = mode === "register"
+      ? { name, mobile, password, state, district, village } 
+      : { mobile, password };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+        if (onLogin) {
+          onLogin(data.user);
+        }
+      } else {
+        alert(data.message || "Something went wrong!");
+      }
+    } catch (err) {
+      console.error("API Connection Error:", err);
+      alert("Server connect aglilla!");
+    }
+  }
 
     const found = USERS.find(
       (user) =>
@@ -1160,6 +1196,7 @@ function LoginScreen({ onLogin }) {
         </div>
       </div>
     </div>
+
   );
 }
 

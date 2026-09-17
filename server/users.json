@@ -13,5 +13,20 @@
     },
     "alertsEnabled": true,
     "createdAt": "2026-08-29T16:51:37.076Z"
+  },
+  {
+    "id": "LG-1789581597877",
+    "name": "Manasa Nayak",
+    "mobile": "8971332578",
+    "passwordHash": "6e659deaa85842cdabb5c6305fcc40033ba43772ec00d45c2a3c921741a5e377",
+    "state": "Karnataka",
+    "district": "Bengaluru",
+    "village": "nagadenahalli",
+    "location": {
+      "latitude": null,
+      "longitude": null
+    },
+    "alertsEnabled": true,
+    "createdAt": "2026-09-16T17:59:57.877Z"
   }
 ]
